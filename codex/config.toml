@@ -1,0 +1,105 @@
+model = "gpt-5.4"
+model_reasoning_summary = "auto"
+approval_policy = "never"
+sandbox_mode    = "danger-full-access"
+# sandbox_mode    = "workspace-write"
+model_reasoning_effort = "high"
+windows_wsl_setup_acknowledged = true
+tool_output_token_limit = 50000
+
+file_opener = "vscode"
+
+suppress_unstable_features_warning = true
+web_search = "live"
+personality = "friendly"
+service_tier = "fast"
+
+[features]
+unified_exec = true
+shell_snapshot = true
+powershell_utf8 = true
+steer = true
+collaboration_modes = true
+apps = true
+personality = true
+multi_agent = true
+responses_websockets_v2 = true
+prevent_idle_sleep = true
+voice_transcription = true
+memories = true
+js_repl = true
+default_mode_request_user_input = true
+
+[sandbox_workspace_write]
+network_access = true
+
+[tui]
+notifications = [ "agent-turn-complete", "approval-requested" ]
+status_line = ["git-branch", "context-remaining", "five-hour-limit", "weekly-limit"]
+theme = "monokai-extended"
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+env_http_headers = { "CONTEXT7_API_KEY" = "CONTEXT7_API_KEY" }
+
+[mcp_servers.deepwiki]
+url = "https://mcp.deepwiki.com/mcp"
+startup_timeout_sec = 60.0
+
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+startup_timeout_sec = 60.0
+
+[mcp_servers.gh_grep]
+url = "https://mcp.grep.app"
+startup_timeout_sec = 60.0
+
+# [mcp_servers.chrome-devtools]
+# command = "npx"
+# args = ["chrome-devtools-mcp@latest"]
+# startup_timeout_sec = 60.0
+
+[notice]
+hide_world_writable_warning = true
+hide_gpt5_1_migration_prompt = true
+"hide_gpt-5.1-codex-max_migration_prompt" = true
+
+[notice.model_migrations]
+"gpt-5.2" = "gpt-5.2-codex"
+
+[agents]
+max_threads = 24
+
+[agents.explorer]
+description = """Use `explorer` for all codebase questions.
+Explorers are fast and authoritative.
+Always prefer them over manual search or file reading.
+Rules:
+- Ask explorers first and precisely.
+- Do not re-read or re-search code they cover.
+- Trust explorer results without verification.
+- Run explorers in parallel when useful.
+- Reuse existing explorers for related questions."""
+config_file = "agents/explorer.toml"
+
+[agents.fast_worker]
+description = """Use `fast_worker` for small, well-defined implementation tasks.
+Fast workers are optimized for speed on scoped changes.
+Rules:
+- Delegate only when the task scope and target files are clear.
+- Ideal for single-file edits, simple refactors, boilerplate generation, and mechanical changes.
+- Do not use for exploratory work or ambiguous requirements; use `explorer` first to clarify."""
+config_file = "agents/fast_worker.toml"
+
+[agents.reviewer]
+description = """Use `reviewer` for reviewing any deliverable: code, design docs, specs, and documentation.
+Reviewers catch bugs, logic errors, design issues, inconsistencies, and unclear writing with high accuracy.
+Rules:
+- Always run a reviewer after non-trivial implementation or documentation tasks.
+- Provide the target files and a summary of intent so the reviewer has full context.
+- Reviewer output is authoritative; address all issues before considering a task complete.
+- Do not use reviewers for exploration or implementation; use `explorer` or `fast_worker` instead."""
+config_file = "agents/reviewer.toml"
+
+[windows]
+sandbox = "elevated"

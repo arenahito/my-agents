@@ -1,0 +1,4 @@
+interface:
+  display_name: "Appium Interactive"
+  short_description: "Persistent Android Appium QA"
+  default_prompt: "Use $appium-interactive to debug an Android app through a persistent Appium session and capture QA evidence."

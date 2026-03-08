@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rule Priority"
+  short_description: "Apply rule priority and fallback preference rules."
+  default_prompt: "Apply repository-specific rules first, language-specific rules second, then fallback preferences from this skill."
