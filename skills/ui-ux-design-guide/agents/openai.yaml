@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI/UX Design Guide"
+  short_description: "Use shared UI/UX rules for screen design, implementation, refinement, and review"
+  default_prompt: "Use $ui-ux-design-guide when a task involves a user-facing screen, dashboard, layout, visual direction, responsiveness, accessibility, or frontend UI design, implementation, refinement, or review decisions."

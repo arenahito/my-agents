@@ -23,4 +23,5 @@ Task-specific instruction sets used by the Codex skills feature.
 | Skill | Description |
 | --- | --- |
 | appium-interactive | Interactive debugging & QA procedures for Android apps using WebdriverIO + Appium |
+| ui-ux-design-guide | Shared UI/UX baseline for frontend design, implementation, and review across web and mobile products |
 | readability-rules | Skill for defining and applying rule priorities in coding guidance |
