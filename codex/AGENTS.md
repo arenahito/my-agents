@@ -15,6 +15,7 @@
 - Before acting on any user instruction, always consider the intent behind it first.
 - Do not implement until explicitly instructed.
 - For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to fast_worker subagents.
+- **Windows `apply_patch` Limit:** When modifying files on Windows, beware of OS Error 206 (command length limit). Avoid large file updates in a single `apply_patch`. Instead, break them down into smaller chunks—for example, create a minimal skeleton file first, then update it incrementally (e.g., method by method).
 
 ## Language
 - Must write Japanese documents with plain style instead of polite style.
@@ -26,7 +27,6 @@
 - The language of documentation must be specified per repository. Use English unless otherwise instructed.
 
 ## Code Style
-- Do not use scripts (Python, Perl, Ruby, Node.js and others) for code editing and reading.
 - Do not write self-explanatory comments.
 - Do not describe your work in the comments.
 
