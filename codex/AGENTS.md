@@ -26,6 +26,10 @@
   - Only the top-level agent's direct reply to the user should be in Japanese.
 - The language of documentation must be specified per repository. Use English unless otherwise instructed.
 
+## Code Review
+- Reviewers must NOT run mechanical checks such as linting, type-checking, formatting, or tests. These are the implementer's responsibility and running them again during review is redundant.
+- Focus review effort on design, logic, readability, and correctness that cannot be caught by automated tooling.
+
 ## Code Style
 - Always consider root-cause fixes first. If the root-cause fix has a manageable impact scope, apply it directly. If it requires broad changes across many files or systems, present the user with options (quick fix vs. root-cause fix) along with trade-offs before proceeding.
 - Do not write self-explanatory comments.
