@@ -15,7 +15,6 @@
 - Before acting on any user instruction, always consider the intent behind it first.
 - Do not implement until explicitly instructed.
 - For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to fast_worker subagents.
-- **Windows `apply_patch` Limit:** When modifying files on Windows, beware of OS Error 206 (command length limit). Avoid large file updates in a single `apply_patch`. Instead, break them down into smaller chunks—for example, create a minimal skeleton file first, then update it incrementally (e.g., method by method).
 
 ## Language
 - Must write Japanese documents with plain style instead of polite style.
@@ -44,7 +43,11 @@
 ## Command
 - Use "fd" instead of "find".
 - Use "rg" (ripgrep) instead of "grep".
+
+## Windows
+- When modifying files, beware of OS Error 206 (command length limit). Avoid large file updates in a single `apply_patch`. Instead, break them down into smaller chunks—for example, create a minimal skeleton file first, then update it incrementally (e.g., method by method).
 - When running shell commands (rg, fd, etc.) in PowerShell, always wrap file/directory paths in double quotes to handle special characters like `()`, `[]`, spaces, etc. Example: `rg "pattern" "C:\Project (old)\src"`
+- Use `npm.cmd` instead of `npm`. The bare `npm` command may fail or hang in some Windows shell environments.
 
 ## MCP
 - Always use context7 MCP when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
