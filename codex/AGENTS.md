@@ -16,6 +16,9 @@
 - Do not implement until explicitly instructed.
 - For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to fast_worker subagents.
 
+### Subagent Delegation
+- Avoid excessive intervention in subagents — it often causes tasks to stall or fail. Trust the delegated subagent and wait for its final result rather than checking on intermediate progress.
+
 ## Language
 - Must write Japanese documents with plain style instead of polite style.
 - When communicating with the user, respond in polite Japanese (敬語).
