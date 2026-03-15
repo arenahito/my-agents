@@ -1,11 +1,19 @@
 ---
 name: appium-interactive
-description: Persistent Appium-based Android app debugging and QA through `js_repl` with WebdriverIO. Use when Codex needs to drive a local Android app on a real device or emulator, keep the same Appium session alive across iterations, capture screenshots and page source, and collect functional or visual QA evidence. Initial scope is Android only; keep the workflow extensible for future iOS support.
+description: Persistent Appium-based Android app debugging and QA through `js_repl` with WebdriverIO. Use when Codex needs to drive a local Android app on a real device or emulator, keep the same Appium session alive across iterations, verify behavior through structural Appium signals first, and capture screenshots or page source only when necessary. Initial scope is Android only; keep the workflow extensible for future iOS support.
 ---
 
 # Appium Interactive
 
-Use a persistent `js_repl` Appium session to debug local Android apps on real devices or emulators, keep the same WebdriverIO/Appium handles alive across iterations, and capture QA evidence without rebuilding the session unless target ownership or app state changed.
+Use a persistent `js_repl` Appium session to debug local Android apps on real devices or emulators, keep the same WebdriverIO/Appium handles alive across iterations, and verify behavior through lightweight structural signals before reaching for screenshots or page source dumps.
+
+Evidence priority for this skill:
+
+1. package and activity checks
+2. app state checks such as `queryAppState(...)`
+3. element presence, enabled state, checked state, content descriptions, and visible text
+4. page source only when locator debugging is blocked
+5. screenshots only when the user asked for them, visual QA is the task, or the UI state is ambiguous after the checks above
 
 ## Preconditions
 
@@ -103,7 +111,8 @@ $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
 
 1. Write a QA inventory before testing:
    - Build it from the user request, the visible behaviors you implemented, and the claims you expect to make in the final response.
-   - Map every claim or behavior to at least one functional check and one evidence artifact.
+   - Map every claim or behavior to at least one functional check.
+   - Add an evidence artifact only when the task is visual, the user explicitly asked for one, or structural checks are likely to be ambiguous.
    - Add at least two exploratory or off-happy-path checks.
 2. Run the bootstrap cell once.
 3. Confirm `ANDROID_HOME` or `ANDROID_SDK_ROOT` in the exact shell that will launch Appium, then start or confirm the Appium server and Android target in persistent terminal sessions.
@@ -114,7 +123,7 @@ $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
    - If session creation fails, debug the Appium prerequisites and retry from there.
    - Do not continue the requested flow through `adb` while the Appium session is broken or missing.
 6. Run functional QA with normal user input first.
-7. Capture screenshots and page source separately from the functional pass.
+7. Capture screenshots or page source only when the user asked for them, when visual QA is the task, or when structural checks were insufficient to disambiguate the state.
 8. Recreate the session only when the target, installed build, or Appium server ownership changed.
    - A target switch normally requires only a fresh Appium session with the new explicit `udid`, emulator serial, or `avd`.
    - Restart the Appium server only when stale cleanup from the previous target is failing, the previous target disappeared before cleanup completed, or the server's ADB state is clearly wedged around the old target.
@@ -123,15 +132,16 @@ $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
 
 ## Quick Action Mode
 
-Use this mode for short requests such as launching an installed app, bringing an app back to the foreground, confirming the frontmost package, or taking one screenshot of the current state.
+Use this mode for short requests such as launching an installed app, bringing an app back to the foreground, confirming the frontmost package, entering text, tapping one control, or taking one screenshot of the current state when the user explicitly asked for it.
 
 For quick actions:
 
-1. Write a minimal inventory with one action check, one visible-result check, and one evidence artifact.
+1. Write a minimal inventory with one action check, one visible-result check, and an optional evidence artifact.
+   - Prefer no artifact when package, activity, locator state, or text changes already prove the result.
 2. Reuse the existing Appium server and `globalThis.__appiumDriver` whenever possible; if the handle is missing, recreate or attach a session before calling helper functions.
    - If the Android target changed, do not reuse the old driver handle. Delete or replace the session for the new explicit target first.
 3. Prefer `activateAndVerify(...)` plus `logForegroundApp()` over rebuilding the session after every turn.
-4. Capture one screenshot after the requested state is visible.
+4. Do not capture a screenshot by default. Capture one only when the user asked for it, when the task is visual, or when the resulting state cannot be trusted from structural checks alone.
 5. Leave the Appium server and session running unless explicit cleanup was requested.
 
 ## Bootstrap (Run Once)
@@ -457,8 +467,8 @@ Keep the same session whenever the Android target and installed build are unchan
 Use the existing session for:
 
 - repeated functional checks
-- repeated screenshots or page-source captures
 - short UI state inspections after app interactions
+- occasional evidence capture when the task explicitly needs it
 
 Recreate the session after:
 
@@ -500,7 +510,6 @@ if (!globalThis.__appiumDriver) {
   await startFreshSession();
 }
 var launchResult = await activateAndVerify("com.android.chrome");
-await emitCurrentScreenshot();
 ```
 
 ## Checklists
@@ -515,7 +524,7 @@ await emitCurrentScreenshot();
 - Create or reuse the session.
 - If session creation fails, stop and fix the Appium path or environment issue before doing any user-requested interaction.
 - Run the functional checks.
-- Capture screenshot and page source only after the state under review is visible.
+- Capture screenshot or page source only when the task requires visual evidence or when structural checks are not enough to trust the state.
 - Leave the Appium server and healthy session handle running between turns.
 - Recreate the session only when target ownership, server ownership, or installed build changed.
 - If the previous target vanished before cleanup finished or the server keeps failing cleanup against the old target, restart Appium before connecting to the new target.
@@ -538,12 +547,14 @@ await emitCurrentScreenshot();
 
 ### Visual QA
 
-- Capture at least one screenshot per signoff claim.
-- Pair screenshots with page source or locator evidence when the UI state is ambiguous.
+- Capture screenshots only for visual QA, explicit user requests, or unresolved ambiguous states.
+- Pair screenshots with locator or page-source evidence only when the screenshot alone would still be ambiguous.
 - Note whether the artifact came from a real device or an emulator.
 - If a view is scrollable, record whether the important state is visible in the startup view or after an intentional scroll step.
 
 ## Evidence Capture
+
+These helpers are optional. Do not call them by default for routine functional tasks such as launching an app, entering text, tapping a button, adding a list item, or toggling a checkbox when package, activity, locator state, text, or counters already prove success.
 
 Emit the current screenshot to the model:
 
@@ -558,6 +569,14 @@ await printCurrentPageSource();
 ```
 
 Treat page source as potentially sensitive output. It can contain notification text, account labels, message previews, or other user-visible strings from the active device. Avoid printing it unless the locator problem actually requires it.
+
+When deciding whether to capture anything, prefer this order:
+
+1. `logForegroundApp()` or `ensureForegroundApp(...)`
+2. direct locator checks such as text, `content-desc`, `checked`, `enabled`, or `isExisting()`
+3. aggregate UI signals such as counters, badges, or other visible text that can be queried through locators
+4. `printCurrentPageSource()` only for locator debugging
+5. `emitCurrentScreenshot()` only for visual signoff or unresolved ambiguity
 
 If you need a saved PNG artifact on disk instead of model-bound output:
 
