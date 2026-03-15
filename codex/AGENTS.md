@@ -17,7 +17,7 @@
 - For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to fast_worker subagents.
 
 ### Subagent Delegation
-- Avoid excessive intervention in subagents — it often causes tasks to stall or fail. Trust the delegated subagent and wait for its final result rather than checking on intermediate progress.
+- NEVER interrupt or kill a running subagent. Once a task is delegated, wait for the subagent to finish on its own. Do not check intermediate progress or attempt corrective intervention mid-task — this consistently causes tasks to stall or fail.
 
 ## Language
 - Must write Japanese documents with plain style instead of polite style.
