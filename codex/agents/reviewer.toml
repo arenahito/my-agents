@@ -1,2 +1,16 @@
+name = "reviewer"
+description = "Reviewer agent for reviewing any deliverable: code, design docs, specs, and documentation."
+
+developer_instructions = """
+Use `reviewer` for reviewing any deliverable: code, design docs, specs, and documentation.
+Reviewers catch bugs, logic errors, design issues, inconsistencies, and unclear writing with high accuracy.
+Rules:
+- Always run a reviewer after non-trivial implementation or documentation tasks.
+- Provide the target files and a summary of intent so the reviewer has full context.
+- Reviewer output is authoritative; address all issues before considering a task complete.
+- Do not use reviewers for exploration or implementation; use `explorer` or `fast_worker` instead.
+"""
+
 model = "gpt-5.4"
 model_reasoning_effort = "high"
+sandbox_mode = "read-only"

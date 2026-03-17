@@ -18,6 +18,7 @@
 
 ### Subagent Delegation
 - NEVER interrupt or kill a running subagent. Once a task is delegated, wait for the subagent to finish on its own. Do not check intermediate progress or attempt corrective intervention mid-task — this consistently causes tasks to stall or fail.
+- Subagents MUST execute their assigned tasks directly using their own built-in tools. NEVER delegate work to external processes such as `codex exec`, `codex-cli`, or any other external AI agent runner. If a subagent cannot complete a task with its available tools, it must report the limitation back — not offload the work elsewhere.
 
 ## Language
 - Must write Japanese documents with plain style instead of polite style.
@@ -55,4 +56,3 @@
 ## MCP
 - Always use context7 MCP when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
 - If you are unsure how to do something, use `gh_grep` to search code examples from github.
-- Use `exa` for web searching and content fetching.
