@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codebase Explorer"
+  short_description: "Map unfamiliar codebases with parallel subagent exploration"
+  default_prompt: "Use $codebase-explorer to map this repository, identify the key modules, and trace where feature X is implemented."
