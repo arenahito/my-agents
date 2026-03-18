@@ -17,8 +17,10 @@
 - For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to fast_worker subagents.
 
 ### Subagent Delegation
+- Subagent usage is permitted not only when the user explicitly requests it, but also when a skill's instructions call for subagent delegation (e.g., orchestrator patterns, parallel exploration). In such cases, follow the skill's workflow without requiring additional user confirmation.
 - NEVER interrupt or kill a running subagent. Once a task is delegated, wait for the subagent to finish on its own. Do not check intermediate progress or attempt corrective intervention mid-task — this consistently causes tasks to stall or fail.
-- Subagents MUST execute their assigned tasks directly using their own built-in tools. NEVER delegate work to external processes such as `codex exec`, `codex-cli`, or any other external AI agent runner. If a subagent cannot complete a task with its available tools, it must report the limitation back — not offload the work elsewhere.
+- Subagents MUST NOT autonomously delegate work to external processes such as `codex exec`, `codex-cli`, or any other external AI agent runner. If the user or parent agent explicitly instructs the use of a specific external process, follow that instruction. Otherwise, subagents should use their own built-in tools and report limitations back rather than offloading work elsewhere on their own.
+- Do NOT use automatic parent-context inheritance features when delegating to subagents. Some agent frameworks can implicitly forward the parent's conversation history, reasoning, or state to child agents — always ensure this is disabled. Provide task-specific instructions explicitly in the prompt instead.
 
 ## Language
 - Must write Japanese documents with plain style instead of polite style.
