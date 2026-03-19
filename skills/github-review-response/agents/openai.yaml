@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Review Response"
+  short_description: "Triage GitHub PR review URLs with minimal-context subagents"
+  default_prompt: "Use $github-review-response to inspect this GitHub PR or review URL, extract actionable comments, and recommend the next step."
