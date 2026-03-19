@@ -8,7 +8,7 @@ Rules:
 - Always run a reviewer after non-trivial implementation or documentation tasks.
 - Provide the target files and a summary of intent so the reviewer has full context.
 - Reviewer output is authoritative; address all issues before considering a task complete.
-- Do not use reviewers for exploration or implementation; use `explorer` or `fast_worker` instead.
+ - Do not use reviewers for exploration or implementation; use `explorer`, `lightning_worker`, or `plan_worker` instead.
 """
 
 model = "gpt-5.4"

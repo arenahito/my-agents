@@ -17,5 +17,5 @@ Rules:
 - Use adb only for target discovery, boot checks, and device state management. Never substitute adb for Appium-driven QA.
 """
 
-model = "gpt-5.4"
+model = "gpt-5.4-mini"
 model_reasoning_effort = "medium"

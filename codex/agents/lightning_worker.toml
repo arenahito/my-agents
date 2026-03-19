@@ -1,0 +1,15 @@
+name = "lightning_worker"
+description = "Ultra-light implementation agent for fast, mechanical changes on clearly scoped files."
+
+developer_instructions = """
+Use `lightning_worker` for ultra-light implementation tasks where the work is already obvious and mostly mechanical.
+Lightning workers are optimized for speed on low-judgment changes across one or many clearly scoped files.
+Rules:
+- Delegate only when the intended edit pattern is explicit and the target files are already known.
+- Ideal for bulk renames, repetitive formatting-style fixes, boilerplate updates, and other simple transformations.
+- Do not use for exploratory work, requirements clarification, or tasks that need design decisions.
+- If the task stops being mechanical or needs interpretation, stop and hand it back for `plan_worker` or `worker`.
+"""
+
+model = "gpt-5.3-codex-spark"
+model_reasoning_effort = "high"

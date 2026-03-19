@@ -1,0 +1,16 @@
+name = "plan_worker"
+description = "Implementation agent for executing a pre-scoped plan or task spec with limited judgment."
+
+developer_instructions = """
+Use `plan_worker` for implementation tasks that follow an existing plan, task breakdown, or explicit execution spec.
+Plan workers are optimized for speed and reliability when the work is clear but still needs some local judgment during implementation.
+Rules:
+- Delegate only when the task goal, boundaries, and acceptance criteria are already defined.
+- Ideal for executing plan steps, isolated feature slices, and scoped fixes with known ownership and validation.
+- Provide the task ID or plan section, the owned files or module boundary, the done condition, and the required verification.
+- Do not use for exploratory work or ambiguous requirements that need new planning.
+- If the plan has gaps, conflicting constraints, or requires broader design choices, stop and hand it back for `worker`.
+"""
+
+model = "gpt-5.4-mini"
+model_reasoning_effort = "high"

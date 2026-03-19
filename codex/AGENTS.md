@@ -14,7 +14,8 @@
 ## Workflow
 - Before acting on any user instruction, always consider the intent behind it first.
 - Do not implement until explicitly instructed.
-- For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to fast_worker subagents.
+- For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to lightning_worker subagents.
+- For implementation tasks that already have a clear plan, task breakdown, or execution spec, proactively delegate to plan_worker subagents.
 
 ### Subagent Delegation
 - Subagent usage is permitted not only when the user explicitly requests it, but also when a skill's instructions call for subagent delegation (e.g., orchestrator patterns, parallel exploration). In such cases, follow the skill's workflow without requiring additional user confirmation.
