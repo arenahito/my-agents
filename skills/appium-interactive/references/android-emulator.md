@@ -2,59 +2,35 @@
 
 Read this file when the task targets an Android emulator.
 
-## Target Selection
+Canonical target and recovery rules live in `SKILL.md` under `Target and Session Rules`. Read `references/session-recipes.md` for the full running-emulator and AVD-launch session recipes. Use this file for emulator-specific inspection and recovery notes.
+
+## Target Inspection Example
 
 - Decide whether the emulator is already running or whether Appium should boot it.
-- If multiple emulators are running, do not guess. Pick one running serial explicitly and copy it into `TARGET_DEVICE.serial`.
+- Use the running serial workflow when you already know which emulator instance should be reused.
 - Use `appium:avd` only when you want Appium to launch a named AVD for the session.
 
-## Capability Patterns
+## Minimal Target Setup
 
 Running emulator by serial:
 
 ```javascript
-TARGET_DEVICE = {
+setTargetDevice({
   kind: "emulator",
   serial: "emulator-5554",
-};
-
-wdOpts = {
-  hostname: "127.0.0.1",
-  port: 4723,
-  path: "/",
-  logLevel: "info",
-  capabilities: {
-    ...ANDROID_BASE_CAPS,
-    "appium:udid": TARGET_DEVICE.serial,
-    "appium:deviceName": TARGET_DEVICE.serial,
-    "appium:appPackage": "com.android.settings",
-    "appium:appActivity": ".Settings",
-  },
-};
+});
 ```
 
 Launch emulator by AVD:
 
 ```javascript
-TARGET_DEVICE = {
+setTargetDevice({
   kind: "emulator",
   avd: "Pixel_8_API_34",
-};
-
-wdOpts = {
-  hostname: "127.0.0.1",
-  port: 4723,
-  path: "/",
-  logLevel: "info",
-  capabilities: {
-    ...ANDROID_BASE_CAPS,
-    "appium:avd": TARGET_DEVICE.avd,
-    "appium:deviceName": TARGET_DEVICE.avd,
-    "appium:appPackage": "com.android.settings",
-    "appium:appActivity": ".Settings",
-  },
-};
+});
 ```
+
+Continue with the matching recipe in `references/session-recipes.md`.
 
 ## Recovery
 

@@ -15,624 +15,396 @@ Evidence priority for this skill:
 4. page source only when locator debugging is blocked
 5. screenshots only when the user asked for them, visual QA is the task, or the UI state is ambiguous after the checks above
 
-## Preconditions
+## Read This First
 
-- `js_repl` must be enabled for this skill.
-- If `js_repl` is missing, enable it in `~/.codex/config.toml`:
+Keep `SKILL.md` as the contract and navigation layer. Read additional files only when the current phase needs them.
 
-```toml
-[features]
-js_repl = true
-```
+- Read `scripts/bootstrap-helpers.mjs` when the current `js_repl` kernel does not already have the shared helpers. Load it through the generated runtime bridge instead of relying on REPL cwd.
+- Read `scripts/preflight-lite-example.mjs` when you need the cheap probe for `preflight-lite`.
+- Read `scripts/materialize-runtime-bridge.mjs` when the selected runtime anchor needs the canonical runtime bridge. It writes `appium-runtime-bridge.mjs` into that anchor.
+- Read `scripts/appium-runtime-bridge-template.mjs` only when you need to inspect the generated bridge contents or bridge API.
+- Read `references/setup-and-handoff.md` as soon as `preflight-lite` fails. It is the canonical file for setup phase and bridge-based post-setup resume.
+- Read `scripts/parent-resume-example.mjs` only as the lower-level resume step used by the runtime bridge.
+- Read `scripts/appium-operational-fallback.mjs` only when `Execution Mode Contract` selected `operational` and the canonical bridge path already failed.
+- Read `references/troubleshooting.md` when setup, server start, session start, target switching, runtime-anchor validation, or post-setup resume fails.
+- Read `references/session-recipes.md` only when you need real-device, emulator, relaunch, or target-switch examples after the bridge context is already established.
+- Read `references/android-real.md` or `references/android-emulator.md` only for target-specific inspection and recovery notes.
+- Read `references/future-ios.md` only when planning an iOS extension. Do not improvise iOS commands into this skill.
 
-- Start a new Codex session after enabling `js_repl` so the tool list refreshes.
-- Run this workflow with sandboxing disabled: start Codex with `--sandbox danger-full-access` or an equivalent `sandbox_mode=danger-full-access` configuration.
-- Make sure the Android SDK, platform tools, and any emulator tooling you need are installed and discoverable from the environment that launches Appium.
-- Make sure the Appium server process can resolve the Android SDK location. If auto-discovery is unavailable, set `ANDROID_HOME` or `ANDROID_SDK_ROOT` in the environment that launches Appium before starting the server.
-- Keep the Appium server running in a persistent TTY session before creating a client session.
-- Do not stop the Appium server or delete a healthy Appium session between user requests unless the user explicitly asks for cleanup or a verified recovery step requires it.
-- Treat `js_repl_reset` as a recovery tool. Resetting the kernel destroys your client bindings and forces a fresh Appium session.
-- Treat Appium session creation as a hard gate. If the server, driver, or Android SDK wiring is broken, fix that first instead of completing the requested flow with `adb`.
-- Initial implementation scope is Android only. Do not improvise iOS commands into this skill body; see `references/future-ios.md` for the intended extension path.
+## Quick Start
 
-## One-time Setup
+- Confirm `js_repl` is enabled, sandboxing is disabled, and the Android SDK is discoverable from the shell that will launch Appium.
+- Resolve the setup target from workspace state using `Setup Target Rules`.
+- Materialize `appium-runtime-bridge.mjs` into the selected runtime anchor with `scripts/materialize-runtime-bridge.mjs`.
+- Import the generated runtime bridge into `js_repl` and call `ensureRuntimeContext()`.
+- Run `Entry Gate` before any requested app flow.
+- If `preflight-lite` fails, follow `references/setup-and-handoff.md`, finish setup in the same agent, and use the runtime bridge for the first session start after setup.
+- If setup is already ready but helper, import, scope, or resume-input problems appear before session start, follow `Post-Setup Recovery` instead of jumping back into setup.
+- Apply `Execution Mode Contract` before deciding whether a bridge failure stops the turn or enters a controlled fallback ladder.
+- Use `references/session-recipes.md` only when you need a concrete session recipe after the bridge context is already in place.
+- Leave the Appium server and healthy session running between turns unless cleanup is explicitly requested or a verified recovery step requires it.
 
-Run setup from the same project directory you need to debug. The exact commands depend on your package manager and shell; the important contract is what each step proves:
+## Execution Mode Contract
 
-1. Initialize a package manifest in the workspace if one does not already exist.
-2. Install `webdriverio` and `appium` so the current workspace can import and execute them.
-3. Install the `uiautomator2` Appium driver from the same environment that will run the Appium server.
-4. Verify that `webdriverio` imports successfully from the workspace.
-5. Verify that the required Appium driver appears in the installed-driver list.
-6. Verify that `adb devices` can see the intended Android target.
+Choose one execution mode before running the requested flow:
 
-Choose one Appium launcher command for your environment and keep using that exact launcher for driver inspection and server startup. Examples: `pnpm exec appium`, `npx appium`, `bunx appium`, or `appium`.
+- `operational`: use this for normal QA and routine task execution. It is the default unless the task is an evaluation-only case described below.
+- `strict`: use this only when the user explicitly wants canonical-path purity, hard-stop analysis, or fallback disabled.
 
-Examples of the verification commands:
+Mode selection rules:
 
-```text
-node -e "import('webdriverio').then(() => console.log('webdriverio import ok')).catch((error) => { console.error(error); process.exit(1); })"
-<appium-cmd> driver list --installed
-adb devices
-```
+- if the user explicitly says `execution mode: strict` or `execution mode: operational`, use that mode
+- if the task is a skill evaluation, skill verification, or regression check and the mode is not specified, stop and ask the user to choose `strict` or `operational` before continuing
+- otherwise default to `operational`
 
-Notes:
+When you ask in an evaluation, verification, or regression task:
 
-- Use any package manager or install scope you like, as long as `webdriverio` is importable from the `js_repl` working directory and the Appium server plus Extension CLI run in the same environment.
-- Appium installs drivers separately. If `uiautomator2` is not available yet, install it explicitly and confirm it appears in the installed-driver list before attempting `remote(...)`.
-- Appium 2 defaults to the server base path `/`. Only use `/wd/hub` if you intentionally started the server with `<appium-cmd> --base-path=/wd/hub`.
-- With `webdriverio@9`, set `automationProtocol: "webdriver"` explicitly in the `remote(...)` options you keep in `wdOpts`. Do not rely on an implied default inside `js_repl`.
-- Set `injectGlobals: false` in `wdOpts` and keep the live session on `globalThis.__appiumDriver`. This avoids `driver` binding collisions inside `js_repl`.
-- If you want to use Appium Inspector alongside this workflow, install the compatible Inspector plugin for your Appium major version first, then launch the server with `<appium-cmd> --use-plugins=inspector --allow-cors`. Plain `--allow-cors` only relaxes CORS; it does not activate the Inspector plugin path by itself. Inspector complements this skill for locator discovery; it does not replace the persistent `js_repl` session.
-- Do not treat `adb` reachability by itself as proof that the skill is ready. This skill is ready only after Appium can create and keep a session.
+- explain that `strict` validates the canonical bridge path and stops on bridge failure
+- explain that `operational` validates task completion with controlled fallback paths
+- do not recommend one as the default for that class of task
 
-## Preflight Gate
+## Setup Target Rules
+
+Resolve a setup target before you install or launch anything. Inspect the workspace root only.
+
+Use this order:
+
+1. If the workspace root `package.json` exists and lists `appium` in `dependencies` or `devDependencies`, use the existing package.
+2. Otherwise, if `./tmp/codex-appium-harness` already exists, use the harness.
+3. Otherwise, if the workspace root `package.json` exists, ask the user to choose between the existing package and `./tmp/codex-appium-harness`. Recommend `./tmp/codex-appium-harness`.
+4. Otherwise, use `./tmp/codex-appium-harness`.
+
+Canonical target rules:
+
+- existing package: use the workspace root as the runtime anchor
+- tmp harness: use `./tmp/codex-appium-harness` as the runtime anchor
+- existing package with missing `webdriverio`: keep the existing package and auto-bootstrap the missing dependency there
+- tmp harness missing or incomplete: create or repair it in place
+- do not search parent directories or other manifests in the repo
+- do not use global `appium` as a fallback
+
+Read `references/setup-and-handoff.md` for the setup-phase command set, canonical Appium server command, and the exact verification commands that must pass from the selected runtime anchor.
+
+## Setup Is Single-Phase
+
+Treat setup as one phase of the same Appium workflow, not as a separate required agent role.
+
+- If `preflight-lite` fails because the runtime anchor, dependencies, SDK wiring, or Appium server are not ready, continue into setup phase in the same agent.
+- Setup phase owns `runtime anchor resolution -> bootstrap or repair -> driver install -> import check -> SDK env check -> Appium server start -> server status verification`.
+- Session creation still happens only after setup phase proves the environment is ready.
+- Once setup phase says the environment is ready, stop doing runtime-anchor repair work and move on to session start and user-visible interaction.
+
+Read `references/setup-and-handoff.md` for the setup result block, bridge materialization, and the bridge-based resume order.
+
+## Entry Gate
+
+Start every Appium task here. Do not touch the requested app flow until this gate tells you whether a healthy same-target session already exists or whether the environment must be repaired first.
+
+Canonical start order:
+
+1. Resolve the setup target from `Setup Target Rules`.
+2. Materialize or refresh `appium-runtime-bridge.mjs` in the selected runtime anchor with `scripts/materialize-runtime-bridge.mjs`.
+3. Import the generated runtime bridge into `js_repl`.
+4. Call `ensureRuntimeContext()`.
+5. Run `runPreflightLite()`.
+6. Reuse the healthy same-target session on success. Otherwise continue into setup phase.
+
+Do not replace this order with handwritten bootstrap cells, ad-hoc helper definitions, or raw WebDriver HTTP as the normal path.
+
+### Preflight-Lite
+
+Run `preflight-lite` at the beginning of every task, including quick actions.
+
+Treat the existing session as healthy only when all of the following are true:
+
+- `globalThis.__appiumDriver` exists
+- `getRuntimeAnchor()` is already set and matches the runtime anchor configured by the generated bridge
+- `getTargetDevice()` is already set and matches the intended target for this task
+- `getWdOpts()` is already set for that target
+- a cheap probe can read either `getCurrentPackage()` or `getCurrentActivity()`
+
+Read and run `scripts/preflight-lite-example.mjs` only when you need to inspect the cheap probe itself. In normal `js_repl` flow, call `runPreflightLite()` from the generated runtime bridge.
+
+If `preflight-lite` fails:
+
+- do not proceed with the requested action
+- enumerate the problem as `missing or unhealthy: ...`
+- resolve the setup target from `Setup Target Rules`
+- follow `references/setup-and-handoff.md`
+- fall through to `full preflight` only after the selected runtime anchor is repaired
+
+If `preflight-lite` succeeds:
+
+- reuse the current same-target session
+- do not reinstall dependencies, reinstall drivers, recreate the harness, or restart the Appium server
+- proceed directly to the requested action
+
+### Full Preflight
+
+Run `full preflight` only when `preflight-lite` cannot prove that a healthy same-target session is ready, or when server ownership or environment clearly changed.
 
 Do not start the requested QA flow until all of the following are true:
 
-- `webdriverio` imports successfully from the current `js_repl` working directory.
-- `ANDROID_HOME` or `ANDROID_SDK_ROOT` is set in the exact shell session that will launch the Appium server.
-- The Appium server is reachable at the exact `hostname` / `port` / `path` you will pass to `remote(...)`.
-- The required Appium driver is installed and visible to that server.
-- The Appium server process can resolve the Android SDK location it needs.
-- A session can be created for the chosen target.
+- the selected runtime anchor exists and is the canonical runtime base for import and CLI checks
+- `webdriverio` imports successfully from the selected runtime anchor
+- `npm exec -- appium` resolves from the selected runtime anchor
+- `ANDROID_HOME` or `ANDROID_SDK_ROOT` is set in the exact shell session that will launch the Appium server
+- the Appium server is reachable at the exact `hostname` / `port` / `path` you will pass to `remote(...)`
+- the required Appium driver is installed and visible to that server
+- the Appium server process can resolve the Android SDK location it needs
+- a fresh session can be created for the chosen target
 
-If any item above fails, stop the user flow and repair the environment first. Do not silently switch to `adb`, coordinate taps, or intent launching as a substitute for Appium-driven QA. `adb` is acceptable only for target discovery, boot checks, authorization prompts, reconnecting the target, and returning the device to a neutral state. It must not advance the requested app flow or replace Appium-collected evidence.
+Use `references/setup-and-handoff.md` for the exact verification command set and `references/troubleshooting.md` when any check fails.
 
-Run this preflight command set before the first session of a task and whenever ownership or environment changed. Replace `<appium-cmd>` with the exact launcher command that matches the Appium server environment, and replace `<server-status-url>` with the exact status endpoint for the server you will call from `remote(...)`. Examples: `http://127.0.0.1:4723/status` for `path: "/"`, `http://127.0.0.1:4723/wd/hub/status` for `path: "/wd/hub"`.
+## Runtime Bridge Contract
 
-Run the SDK-variable check before starting Appium. If it fails, stop there and fix the launch environment before you open a persistent Appium server session.
+Treat `appium-runtime-bridge.mjs` in the selected runtime anchor as the canonical `js_repl` entrypoint for setup recovery and session start.
+
+- materialize it from `scripts/materialize-runtime-bridge.mjs`, not by hand
+- import the generated bridge into `js_repl` instead of re-creating runtime-anchor or helper wiring inline
+- use `ensureRuntimeContext()` before any bridge-driven preflight or session-start call
+- use `setResumeInputs({ targetDevice, wdOpts })` plus `startSessionFromResumeInputs()` for the first session start after setup
+- treat the bridge as skill-internal runtime glue, not as app code or a user-maintained helper
+- do not create a throwaway shell script, a runtime-anchor-local ad-hoc WebdriverIO script, a raw WebDriver HTTP path, or a second helper stack as a substitute for the bridge
+- if bridge import, `ensureRuntimeContext()`, `runPreflightLite()`, or `startSessionFromResumeInputs()` fails, report `bridge flow broken`, capture the failure evidence, and stop that requested flow instead of bypassing the bridge
+- once `bridge flow broken` is reached, do not create a new session, do not switch to raw WebDriver or direct Appium REST, do not add a throwaway script, do not add a handwritten helper stack, and do not continue the requested flow through a fallback route in the same turn
+- after bridge failure, the only allowed actions in that turn are collecting failure evidence, preserving the current session or server state, and writing the final report
+
+The generated bridge exports exactly these functions:
+
+- `ensureRuntimeContext()`
+- `setResumeInputs({ targetDevice, wdOpts })`
+- `runPreflightLite()`
+- `startSessionFromResumeInputs()`
+- `getDriver()`
+
+These rules are the hard-stop contract for `strict` mode.
+
+## Operational Fallback Contract
+
+Use this contract only in `operational` mode after the canonical bridge path fails.
+
+Fallback ladder:
+
+1. canonical bridge retry
+2. supported fallback
+3. emergency hatch
+
+Canonical bridge retry:
+
+- rematerialize the runtime bridge once
+- use `js_repl_reset` only when the current kernel state is likely stale or conflicting
+- reimport the bridge
+- rerun `ensureRuntimeContext()`
+- rerun `runPreflightLite()`
+- retry this ladder step only once
+
+Supported fallback:
+
+- use `scripts/appium-operational-fallback.mjs`
+- call `ensureOperationalRuntime({ runtimeAnchor })`
+- call `setOperationalInputs({ targetDevice, wdOpts })`
+- call `runOperationalPreflight()`
+- call `startOperationalSession()` only when the supported fallback preflight says the missing piece is the session
+- treat this path as skill-owned degraded execution, not as an ad-hoc workaround
+
+Emergency hatch:
+
+- use it only after canonical bridge retry and supported fallback both failed with captured evidence
+- allowed paths are limited to a temporary script inside the selected runtime anchor or direct Appium REST inside `js_repl`
+- do not edit repo-tracked files, do not add scripts outside the selected runtime anchor, do not patch the global skill, and do not perform silent cleanup
+- report emergency hatch usage explicitly in the final report
+
+Operational mode still forbids free-form fallback. If the path is not listed in this ladder, do not use it.
+
+## Session Persistence Contract
+
+Treat session persistence as a hard contract, not as a convenience preference.
+
+- do not call `deleteSession()`, `deleteDriverSession()`, or stop the Appium server at the end of a request by default
+- do not put session cleanup in `finally`, deferred cleanup helpers, or end-of-task shell commands
+- allow cleanup only when the user explicitly requested it or when a verified recovery step in this skill requires it
+- if a request ends with the session still healthy, leave it running and say so explicitly
+- if a verified recovery step deleted the session or stopped the server, say so explicitly
+
+Every final report for this skill must include:
+
+- `session kept alive: yes | no`
+- `cleanup performed: none | session deleted | server stopped | ...`
+
+## Shared Helper Contract
+
+Treat `scripts/bootstrap-helpers.mjs` as the canonical shared-helper source for this skill.
+
+- prefer loading `scripts/bootstrap-helpers.mjs` through the runtime bridge over writing new top-level helper functions in ad-hoc `js_repl` cells
+- keep reusable session state in the helper-managed shared state instead of duplicating state in handwritten bindings
+- use `globalThis` only for the helper contract's shared state and explicitly named setup or resume inputs
+- if a temporary import, scope, or REPL quirk appears, return to the helper contract instead of building a parallel helper stack
+
+When helper behavior and handwritten cells disagree, treat the helper contract as the source of truth and re-align the session flow to it.
+
+### Setup Result Block
+
+Keep this fixed setup result block in your notes whenever setup phase produces reusable environment details:
 
 ```text
-node -e "import('webdriverio').then(() => console.log('webdriverio import ok')).catch((error) => { console.error(error); process.exit(1); })"
-node -e "console.log(process.env.ANDROID_HOME || 'ANDROID_HOME unset'); console.log(process.env.ANDROID_SDK_ROOT || 'ANDROID_SDK_ROOT unset')"
-<appium-cmd> driver list --installed
-adb devices
-node -e "const url = process.argv[1]; fetch(url).then(async (response) => { if (!response.ok) throw new Error('HTTP ' + response.status); const payload = await response.json(); console.log(payload.value?.ready ?? payload.ready ?? 'status ok'); }).catch((error) => { console.error(error); process.exit(1); })" "<server-status-url>"
+SETUP_HANDOFF
+- selected runtime anchor: ...
+- cwd used for setup: ...
+- setup target source: existing package | tmp harness
+- webdriverio import result: pass | fail ...
+- driver-list result: ...
+- adb devices result: ...
+- server URL: ...
+- server path: ...
+- exact server launch command: ...
+- target-selection status: resolved ... | selection required
+- remaining blocker: none | ...
 ```
 
-Treat the preflight as failed when any command exits non-zero or when the SDK variables are unset in the environment that will launch the Appium server.
+When the setup result says `remaining blocker: none` or `ready for session start`, treat later failures as post-setup recovery problems first. Return to setup work only when the setup result is later proven stale.
 
-If the SDK-variable check fails, export one or both variables in the same shell that will launch Appium, then rerun the preflight before starting the server:
+After setup phase is ready:
 
-```bash
-export ANDROID_HOME="$HOME/Android/Sdk"
-export ANDROID_SDK_ROOT="$ANDROID_HOME"
-<appium-cmd>
-```
+- materialize or refresh the runtime bridge in the selected runtime anchor
+- move to `setResumeInputs({ targetDevice, wdOpts })` and `startSessionFromResumeInputs()` through the runtime bridge
+- treat helper, import, scope, or missing-input failures as resume-path problems first
+- treat `scripts/parent-resume-example.mjs` as the lower-level step used by the runtime bridge
+- return to runtime repair work only when the setup result is proven stale
+- do not add cleanup to the post-setup happy path
 
-```powershell
-$env:ANDROID_HOME = "$HOME\AppData\Local\Android\Sdk"
-$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
-<appium-cmd>
-```
+### Post-Setup Recovery
 
-## Core Workflow
+Use this branch only when setup already proved the environment ready, but the first session start still failed because helpers, imports, scope, or resume inputs are missing or inconsistent.
 
-1. Write a QA inventory before testing:
-   - Build it from the user request, the visible behaviors you implemented, and the claims you expect to make in the final response.
-   - Map every claim or behavior to at least one functional check.
-   - Add an evidence artifact only when the task is visual, the user explicitly asked for one, or structural checks are likely to be ambiguous.
-   - Add at least two exploratory or off-happy-path checks.
-2. Run the bootstrap cell once.
-3. Confirm `ANDROID_HOME` or `ANDROID_SDK_ROOT` in the exact shell that will launch Appium, then start or confirm the Appium server and Android target in persistent terminal sessions.
-4. Choose exactly one Android target type:
-   - real device: read `references/android-real.md`
-   - emulator: read `references/android-emulator.md`
-5. Create or reuse the Appium session for that target.
-   - If session creation fails, debug the Appium prerequisites and retry from there.
-   - Do not continue the requested flow through `adb` while the Appium session is broken or missing.
-6. Run functional QA with normal user input first.
-7. Capture screenshots or page source only when the user asked for them, when visual QA is the task, or when structural checks were insufficient to disambiguate the state.
-8. Recreate the session only when the target, installed build, or Appium server ownership changed.
-   - A target switch normally requires only a fresh Appium session with the new explicit `udid`, emulator serial, or `avd`.
-   - Restart the Appium server only when stale cleanup from the previous target is failing, the previous target disappeared before cleanup completed, or the server's ADB state is clearly wedged around the old target.
-9. Do not clean up the session or stop the Appium server at the end of a turn by default.
-10. Clean up only when the user explicitly asks for it or a verified recovery step requires it.
+Run this order:
+
+1. return to the selected runtime anchor from the setup result
+2. materialize or refresh `appium-runtime-bridge.mjs`
+3. import the generated bridge and call `ensureRuntimeContext()`
+4. call `setResumeInputs({ targetDevice, wdOpts })`
+5. call `startSessionFromResumeInputs()`
+
+Treat this as REPL or resume-state recovery, not environment repair.
+
+- in `strict` mode, if any bridge step in this branch fails, report `bridge flow broken` and stop that requested flow for the current turn instead of switching to a different session-start path
+- in `operational` mode, if any bridge step in this branch fails, enter the controlled fallback ladder from `Operational Fallback Contract`
+- in either mode, do not jump back into setup unless the setup result is proven stale by new evidence
+
+## Target and Session Rules
+
+The canonical target and recovery rules live here. The reference files are examples and recovery notes, not the source of truth.
+
+Only these target shapes are valid:
+
+- real device: `TARGET_DEVICE.udid`
+- already running emulator: `TARGET_DEVICE.serial`
+- Appium-launched emulator: `TARGET_DEVICE.avd`
+
+When multiple Android targets are visible, do not guess. Stop and set the exact target explicitly.
+
+Treat the target as changed when any of these change:
+
+- `kind`
+- `udid`
+- `serial`
+- `avd`
+
+When the target changed:
+
+- delete the old session
+- set the new explicit target
+- update `wdOpts` for that target
+- create a fresh Appium session before any requested action
+
+Do not restart the Appium server for a target switch by default. Restart it only when one of these is true:
+
+- stale cleanup from the previous target is failing
+- the old target disappeared before cleanup completed
+- the server's ADB state is clearly wedged around the old target
+
+Read `references/session-recipes.md` for concrete real-device, emulator, relaunch, and target-switch examples.
 
 ## Quick Action Mode
 
 Use this mode for short requests such as launching an installed app, bringing an app back to the foreground, confirming the frontmost package, entering text, tapping one control, or taking one screenshot of the current state when the user explicitly asked for it.
 
-For quick actions:
-
-1. Write a minimal inventory with one action check, one visible-result check, and an optional evidence artifact.
-   - Prefer no artifact when package, activity, locator state, or text changes already prove the result.
-2. Reuse the existing Appium server and `globalThis.__appiumDriver` whenever possible; if the handle is missing, recreate or attach a session before calling helper functions.
-   - If the Android target changed, do not reuse the old driver handle. Delete or replace the session for the new explicit target first.
-3. Prefer `activateAndVerify(...)` plus `logForegroundApp()` over rebuilding the session after every turn.
-4. Do not capture a screenshot by default. Capture one only when the user asked for it, when the task is visual, or when the resulting state cannot be trusted from structural checks alone.
-5. Leave the Appium server and session running unless explicit cleanup was requested.
-
-## Bootstrap (Run Once)
-
-```javascript
-var remote;
-var ANDROID_BASE_CAPS;
-var APPIUM_DRIVER_KEY;
-var APPIUM_STATE_KEY;
-
-try {
-  ({ remote } = await import("webdriverio"));
-  console.log("WebdriverIO loaded");
-} catch (error) {
-  throw new Error(
-    `Could not load webdriverio from the current js_repl cwd. Run the setup commands from this workspace first. Original error: ${error}`
-  );
-}
-
-APPIUM_DRIVER_KEY = "__appiumDriver";
-APPIUM_STATE_KEY = "__appiumState";
-
-var getAppiumState = function () {
-  if (!globalThis[APPIUM_STATE_KEY]) {
-    globalThis[APPIUM_STATE_KEY] = {
-      wdOpts: undefined,
-      targetDevice: undefined,
-    };
-  }
-  return globalThis[APPIUM_STATE_KEY];
-};
-
-var setTargetDevice = function (nextTargetDevice) {
-  var state = getAppiumState();
-  state.targetDevice = nextTargetDevice;
-  return state.targetDevice;
-};
-
-var getTargetDevice = function () {
-  return getAppiumState().targetDevice;
-};
-
-var setWdOpts = function (nextWdOpts) {
-  var state = getAppiumState();
-  state.wdOpts = nextWdOpts;
-  return state.wdOpts;
-};
-
-var getWdOpts = function () {
-  return getAppiumState().wdOpts;
-};
-
-var getDriver = function () {
-  var session = globalThis[APPIUM_DRIVER_KEY];
-  if (!session) throw new Error("No active Appium session");
-  return session;
-};
-
-var deleteDriverSession = async function () {
-  var session = globalThis[APPIUM_DRIVER_KEY];
-  if (!session) return;
-  try {
-    await session.deleteSession();
-  } catch (error) {
-    console.log("Ignoring deleteSession failure:", error.message);
-  }
-  globalThis[APPIUM_DRIVER_KEY] = undefined;
-};
-
-var emitCurrentScreenshot = async function () {
-  const { Buffer } = await import("node:buffer");
-  var session = getDriver();
-  await codex.emitImage({
-    bytes: Buffer.from(await session.takeScreenshot(), "base64"),
-    mimeType: "image/png",
-  });
-};
-
-var printCurrentPageSource = async function () {
-  var session = getDriver();
-  const source = await session.getPageSource();
-  console.log(source);
-  return source;
-};
-
-var logForegroundApp = async function () {
-  var session = getDriver();
-  var currentPackage = await session.getCurrentPackage();
-  var currentActivity = await session.getCurrentActivity();
-  console.log(
-    JSON.stringify(
-      {
-        currentPackage,
-        currentActivity,
-      },
-      null,
-      2
-    )
-  );
-  return { currentPackage, currentActivity };
-};
-
-var ensureForegroundApp = async function (packageName, timeout) {
-  var session = getDriver();
-  await session.waitUntil(
-    async function () {
-      return (await session.getCurrentPackage()) === packageName;
-    },
-    {
-      timeout: timeout ?? 15000,
-      timeoutMsg: `Expected ${packageName} to become the foreground app`,
-    }
-  );
-  return await logForegroundApp();
-};
-
-var activateAndVerify = async function (packageName, timeout) {
-  var session = getDriver();
-  var beforeState = await session.queryAppState(packageName);
-  await session.activateApp(packageName);
-  var foreground = await ensureForegroundApp(packageName, timeout);
-  var afterState = await session.queryAppState(packageName);
-  console.log(
-    JSON.stringify(
-      {
-        packageName,
-        beforeState,
-        afterState,
-        ...foreground,
-      },
-      null,
-      2
-    )
-  );
-  return {
-    packageName,
-    beforeState,
-    afterState,
-    ...foreground,
-  };
-};
-
-var startFreshSession = async function () {
-  var wdOpts = getWdOpts();
-  if (globalThis[APPIUM_DRIVER_KEY]) {
-    throw new Error(
-      "An Appium session is already active. Call await deleteDriverSession() before changing the target or rerunning a session-start cell."
-    );
-  }
-  if (!wdOpts) {
-    throw new Error("Call setWdOpts(...) before starting an Appium session.");
-  }
-  globalThis[APPIUM_DRIVER_KEY] = await remote({
-    automationProtocol: "webdriver",
-    injectGlobals: false,
-    ...wdOpts,
-  });
-  return globalThis[APPIUM_DRIVER_KEY];
-};
-
-ANDROID_BASE_CAPS = {
-  platformName: "Android",
-  "appium:automationName": "UiAutomator2",
-  "appium:newCommandTimeout": 300,
-};
-```
-
-Binding rules:
-
-- Use `var` for shared top-level bindings so later `js_repl` cells can reuse them.
-- Prefer `var` even for temporary top-level values that you may rerun during debugging; avoid redeclaration errors caused by `const` or `let` in later cells.
-- Keep mutable session configuration in `globalThis.__appiumState` via `setTargetDevice(...)` and `setWdOpts(...)`. Do not rely on later cells mutating a top-level `wdOpts` or `TARGET_DEVICE` binding that helper functions closed over earlier.
-- Keep one active Appium session handle on `globalThis.__appiumDriver` per task unless you truly need concurrent sessions.
-- Do not keep the long-lived session in a top-level `driver` binding. `webdriverio@9` can behave poorly with `driver` globals inside `js_repl`; `globalThis.__appiumDriver` plus `injectGlobals: false` is the safe pattern.
-- If the server or target changes, call `await deleteDriverSession()` and build a fresh session rather than mutating a stale one.
-- Do not rerun a session-start cell while `globalThis.__appiumDriver` already exists. Keep using the current session, or delete it first on purpose.
-- If you need block-scoped scratch work, wrap it in `{ ... }` instead of redeclaring top-level names such as `Buffer`, `beforeState`, or `currentPackage`.
-
-## Start or Reuse the Appium Server
-
-Before starting the server, confirm `ANDROID_HOME` or `ANDROID_SDK_ROOT` in the same shell session that will launch Appium. Do not start Appium first and check later.
-
-Use a persistent TTY session, for example:
-
-```bash
-<appium-cmd>
-```
-
-Example shell setup before server launch:
-
-```bash
-export ANDROID_HOME="$HOME/Android/Sdk"
-export ANDROID_SDK_ROOT="$ANDROID_HOME"
-<appium-cmd>
-```
-
-```powershell
-$env:ANDROID_HOME = "$HOME\AppData\Local\Android\Sdk"
-$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
-<appium-cmd>
-```
-
-If the variables are already set in that shell, explicitly verify them anyway before launching the server.
-
-Only change the base path if you have a compatibility reason:
-
-```bash
-<appium-cmd> --base-path=/wd/hub
-```
-
-Before `remote(...)`, confirm the server is listening on the URL you plan to use.
-
-## Start or Reuse Android Real Device Session
-
-Read `references/android-real.md` before using this path.
-
-Never auto-pick a real device when multiple Android targets are connected. Set the selected ADB device entry first:
-
-```javascript
-var ADB_DEVICE_ID = "192.168.0.109:32833";
-
-setTargetDevice({
-  kind: "real",
-  udid: ADB_DEVICE_ID,
-});
-```
-
-Use a deterministic app target. For generic smoke checks, system Settings is acceptable:
-
-```javascript
-setWdOpts({
-  automationProtocol: "webdriver",
-  hostname: "127.0.0.1",
-  port: 4723,
-  path: "/",
-  logLevel: "info",
-  injectGlobals: false,
-  capabilities: {
-    ...ANDROID_BASE_CAPS,
-    "appium:udid": getTargetDevice().udid,
-    "appium:deviceName": getTargetDevice().udid,
-    "appium:appPackage": "com.android.settings",
-    "appium:appActivity": ".Settings",
-  },
-});
-
-var session = await startFreshSession();
-console.log("Session:", session.sessionId);
-```
-
-If your server was started with `--base-path=/wd/hub`, change `path` to `"/wd/hub"` and keep the rest of the contract the same.
-
-For project-specific apps, replace `appPackage` and `appActivity` with your actual launch target or use the app-under-test path required by the project.
-
-## Start or Reuse Android Emulator Session
-
-Read `references/android-emulator.md` before using this path.
-
-Never auto-pick an emulator when multiple emulators are available. Prefer an explicit running serial:
-
-```javascript
-setTargetDevice({
-  kind: "emulator",
-  serial: "emulator-5554",
-});
-```
-
-Use the running serial when you want to attach to an already-running emulator:
-
-```javascript
-setWdOpts({
-  automationProtocol: "webdriver",
-  hostname: "127.0.0.1",
-  port: 4723,
-  path: "/",
-  logLevel: "info",
-  injectGlobals: false,
-  capabilities: {
-    ...ANDROID_BASE_CAPS,
-    "appium:udid": getTargetDevice().serial,
-    "appium:deviceName": getTargetDevice().serial,
-    "appium:appPackage": "com.android.settings",
-    "appium:appActivity": ".Settings",
-  },
-});
-
-var session = await startFreshSession();
-console.log("Session:", session.sessionId);
-```
-
-If you need Appium to boot the emulator itself, replace the target fields with an explicit AVD:
-
-```javascript
-setTargetDevice({
-  kind: "emulator",
-  avd: "Pixel_8_API_34",
-});
-
-setWdOpts({
-  automationProtocol: "webdriver",
-  hostname: "127.0.0.1",
-  port: 4723,
-  path: "/",
-  logLevel: "info",
-  injectGlobals: false,
-  capabilities: {
-    ...ANDROID_BASE_CAPS,
-    "appium:avd": getTargetDevice().avd,
-    "appium:deviceName": getTargetDevice().avd,
-    "appium:appPackage": "com.android.settings",
-    "appium:appActivity": ".Settings",
-  },
-});
-
-var session = await startFreshSession();
-console.log("Session:", session.sessionId);
-```
-
-## Reuse Sessions During Iteration
-
-Keep the same session whenever the Android target and installed build are unchanged.
-
-Use the existing session for:
-
-- repeated functional checks
-- short UI state inspections after app interactions
-- occasional evidence capture when the task explicitly needs it
-
-Recreate the session after:
-
-- switching between real device and emulator
-- switching to a different physical device or emulator serial
-- restarting the Appium server
-- reinstalling the app or changing the build under test
-- any situation where the session becomes unresponsive or detached
-
-Switching targets does not require an Appium server restart by default. Preferred order:
-
-1. Delete the current session.
-2. Set the new explicit target with `setTargetDevice(...)`.
-3. Update `setWdOpts(...)` for that target.
-4. Start a fresh session.
-
-Restart the Appium server before creating the replacement session when any of these are true:
-
-- the previous target already disappeared and the server is still trying to clean it up
-- server logs mention the old `udid` or emulator serial during later cleanup and fail there
-- the server stopped responding after the target switch
-- you intentionally use a single-session workflow with `--session-override` and want the server to evict leftovers before the next session
-
-Fresh session cell:
-
-```javascript
-await deleteDriverSession();
-var session = await startFreshSession();
-console.log("Relaunched session:", session.sessionId);
-```
-
-Quick app activation cell:
-
-```javascript
-if (!globalThis.__appiumDriver) {
-  if (!getWdOpts()) {
-    throw new Error("Call setTargetDevice(...) and setWdOpts(...) before starting a fresh session.");
-  }
-  await startFreshSession();
-}
-var launchResult = await activateAndVerify("com.android.chrome");
-```
-
-## Checklists
-
-### Session Loop
-
-- Bootstrap `js_repl` once and keep the same `globalThis.__appiumDriver` handle alive.
-- Confirm `ANDROID_HOME` or `ANDROID_SDK_ROOT` before launching Appium, in the same shell that will own the server process.
-- Confirm the Appium server URL and base path before connecting.
-- Confirm the Appium server process can resolve the Android SDK before connecting.
-- Select the Android target explicitly.
-- Create or reuse the session.
-- If session creation fails, stop and fix the Appium path or environment issue before doing any user-requested interaction.
-- Run the functional checks.
-- Capture screenshot or page source only when the task requires visual evidence or when structural checks are not enough to trust the state.
-- Leave the Appium server and healthy session handle running between turns.
-- Recreate the session only when target ownership, server ownership, or installed build changed.
-- If the previous target vanished before cleanup finished or the server keeps failing cleanup against the old target, restart Appium before connecting to the new target.
-- Stop the Appium server only for explicit cleanup requests.
-- Delete the session only for explicit cleanup requests or verified recovery steps.
-
-### Target Selection
-
-- Real device: require an explicit `udid`.
-- Emulator: require an explicit running serial or an explicit AVD name.
-- If multiple Android targets are connected, do not guess. Stop and set the target explicitly.
-
-### Functional QA
-
-- Prefer element-based interactions over coordinate taps.
-- Verify at least one end-to-end critical flow.
-- Confirm the visible result of the flow, not only the absence of driver errors.
-- Use Appium Inspector as a locator aid when the source tree is hard to read.
-- Do not replace a broken Appium flow with `adb` input commands just to make progress on the user-visible task.
-
-### Visual QA
-
-- Capture screenshots only for visual QA, explicit user requests, or unresolved ambiguous states.
-- Pair screenshots with locator or page-source evidence only when the screenshot alone would still be ambiguous.
-- Note whether the artifact came from a real device or an emulator.
-- If a view is scrollable, record whether the important state is visible in the startup view or after an intentional scroll step.
-
-## Evidence Capture
-
-These helpers are optional. Do not call them by default for routine functional tasks such as launching an app, entering text, tapping a button, adding a list item, or toggling a checkbox when package, activity, locator state, text, or counters already prove success.
-
-Emit the current screenshot to the model:
-
-```javascript
-await emitCurrentScreenshot();
-```
-
-Print the current page source to inspect locators:
-
-```javascript
-await printCurrentPageSource();
-```
-
-Treat page source as potentially sensitive output. It can contain notification text, account labels, message previews, or other user-visible strings from the active device. Avoid printing it unless the locator problem actually requires it.
-
-When deciding whether to capture anything, prefer this order:
+Decision path:
+
+1. Materialize or refresh the runtime bridge in the selected runtime anchor.
+2. Import the bridge and call `ensureRuntimeContext()`.
+3. Run `Entry Gate`.
+4. If `runPreflightLite()` proves a healthy same-target session, reuse it.
+5. Otherwise, resolve the setup target, finish setup in the same agent, and continue from the setup result through the bridge.
+6. Execute the requested action.
+7. Verify the result through package, activity, locator state, or visible text.
+8. Capture a screenshot only when the user explicitly asked for it, when the task is visual, or when structural checks still leave the state ambiguous.
+9. Leave the session alive unless an explicit cleanup request or verified recovery step says otherwise.
+
+Quick Action Mode still follows `Execution Mode Contract`. If the task is a skill evaluation, verification, or regression check with no mode specified, ask the user to choose the mode before running even a quick action.
+
+Minimal quick-action inventory:
+
+- one action check
+- one visible-result check
+- no artifact by default
+
+Prefer `activateAndVerify(...)` plus `logForegroundApp()` over rebuilding the session after every turn.
+
+## Result Classification Contract
+
+Keep the requested target result separate from any fallback observation.
+
+- `execution mode` states whether the flow used `strict` or `operational`
+- `requested target status` is about the exact task the user asked for
+- `requested target` means the original objective exactly as requested by the user
+- `canonical path status` is about the generated runtime bridge path only
+- `fallback path used` states whether the flow stayed canonical or used `supported` or `emergency` fallback
+- `fallback status` is about any secondary observation you used after the requested target failed or was blocked
+- `requested target status: success` is allowed only when the original requested objective itself was completed
+- if the original objective succeeds only through a fallback path, keep `canonical path status` as `failed` or `blocked`
+- do not upgrade overall success when the requested target is still `failed` or `blocked`
+- do not infer `requested target success` from an alternate path, fallback navigation, or any other secondary observation
+- if the original requested objective is still `failed` or `blocked`, keep it that way even when the fallback observation succeeds
+- fallback success must not be reported as `requested target success`
+- do not describe a fallback page load as if it completed the originally requested click or search flow
+
+Use this minimum final-report shape:
+
+- `execution mode: strict | operational`
+- `requested target status: success | failed | blocked`
+- `canonical path status: success | failed | blocked`
+- `fallback path used: none | supported | emergency`
+- `fallback status: not used | success | failed`
+- `exact blocker: ...` for the requested target
+- `supporting evidence: ...` with requested-target evidence and fallback evidence kept distinct
+- `session kept alive: yes | no`
+- `cleanup performed: none | session deleted | server stopped | ...`
+
+## Minimal Evidence Policy
+
+Do not call screenshots or page source helpers by default for routine functional tasks when package, activity, locator state, text, or counters already prove success.
+
+Use this order:
 
 1. `logForegroundApp()` or `ensureForegroundApp(...)`
 2. direct locator checks such as text, `content-desc`, `checked`, `enabled`, or `isExisting()`
 3. aggregate UI signals such as counters, badges, or other visible text that can be queried through locators
-4. `printCurrentPageSource()` only for locator debugging
-5. `emitCurrentScreenshot()` only for visual signoff or unresolved ambiguity
+4. page source only for locator debugging
+5. screenshots only for visual signoff or unresolved ambiguity
 
-If you need a saved PNG artifact on disk instead of model-bound output:
+When you escalate from structural checks to page source or screenshots, state what the earlier checks could not prove and why the extra evidence is needed.
 
-```javascript
-await getDriver().saveScreenshot("./appium-current.png");
-console.log("Saved appium-current.png");
-```
+Cleanup defaults:
 
-## Cleanup
+- do not run cleanup at the end of a request by default; follow `Session Persistence Contract`
+- stop the Appium server only for explicit cleanup requests
+- delete and recreate the session only for verified recovery steps or explicit cleanup requests
 
-Do not run cleanup by default at the end of a request.
+## Code Placement Rules
 
-You may stop the Appium server only when the user explicitly asks to stop it.
-
-You may delete and recreate the session without stopping the Appium server only when:
-
-- A verified recovery step requires a fresh session.
-- Server ownership, target ownership, or installed build changed and reuse is unsafe.
-- The user explicitly asks to close the current session.
-
-```javascript
-await deleteDriverSession();
-globalThis[APPIUM_STATE_KEY] = {
-  wdOpts: undefined,
-  targetDevice: undefined,
-};
-globalThis[APPIUM_DRIVER_KEY] = undefined;
-console.log("Appium session closed");
-```
-
-## Common Failure Modes
-
-- `Cannot find module 'webdriverio'`: run the one-time setup in the current workspace and verify the import before using `js_repl`.
-- `Could not connect to Appium`: confirm the server is running in a persistent TTY session and that `hostname`, `port`, and `path` match the server.
-- `Neither ANDROID_HOME nor ANDROID_SDK_ROOT environment variable was exported`: restart the Appium server from an environment where `ANDROID_HOME` or `ANDROID_SDK_ROOT` is set and resolvable; do not work around this by driving the flow with `adb`. Use one of these restart patterns:
-
-```bash
-export ANDROID_HOME="$HOME/Android/Sdk"
-export ANDROID_SDK_ROOT="$ANDROID_HOME"
-<appium-cmd>
-```
-
-```powershell
-$env:ANDROID_HOME = "$HOME\AppData\Local\Android\Sdk"
-$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
-<appium-cmd>
-```
-
-- Session works only with `/wd/hub`: your server was likely started with `--base-path=/wd/hub`; keep the client path consistent instead of mixing defaults.
-- `Cannot read properties of undefined (reading 'automationProtocol')` during `remote(...)`: add `automationProtocol: "webdriver"` to the object you pass to `setWdOpts(...)` explicitly. This has been required in real `webdriverio@9` sessions inside `js_repl`.
-- `startFreshSession()` still says `Call setWdOpts(...) before starting an Appium session.` after a later setup cell: call `setTargetDevice(...)` and `setWdOpts(...)` so the helpers read `globalThis.__appiumState` instead of a stale top-level closure.
-- `No driver found for automationName 'UiAutomator2'`: run `appium driver install uiautomator2`.
-- Helper functions immediately say `No active Appium session` after a successful `remote(...)`: set `injectGlobals: false`, store the result on `globalThis.__appiumDriver`, and avoid a shared top-level `driver` binding.
-- `device unauthorized`: unlock the Android device, accept the USB debugging prompt, then reconnect and recreate the session.
-- Multiple Android targets appear in `adb devices`: set an explicit real-device `udid` or emulator serial before connecting.
-- Emulator is visible but not ready: wait for boot completion or cold-boot the emulator, then recreate the session.
-- Changing targets later causes errors that still mention the old `udid` or emulator serial: the old session likely did not clean up cleanly. Restart Appium, confirm `adb devices` for the new target, then create a fresh session with the new explicit target.
-- Single-session flows accumulate stale sessions across target switches: start Appium with `--session-override` so the server closes leftovers before accepting the next session.
-- `js_repl` reset or timeout destroyed your bindings: rerun the bootstrap cell and recreate the session with shorter, focused cells.
+- Keep inline JavaScript blocks in `SKILL.md` under roughly 10 lines.
+- Move JavaScript blocks longer than 20 lines into `scripts/*.mjs`.
+- Keep fixed text contracts such as `SETUP_HANDOFF` in `SKILL.md`.
+- Keep long examples, recipes, and failure catalogs in `references/*.md`.
+- Name `scripts/*.mjs` by role: `*-helpers` for shared bootstrap code, `*-example` for runnable snippets, and `*-probe` if a file exists only to inspect or verify state.

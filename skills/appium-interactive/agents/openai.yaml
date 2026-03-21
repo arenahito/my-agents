@@ -1,4 +1,4 @@
 interface:
   display_name: "Appium Interactive"
   short_description: "Persistent Android Appium QA"
-  default_prompt: "Use $appium-interactive to debug an Android app through a persistent Appium session, verify behavior through Appium signals first, and capture screenshots or page source only when necessary."
+  default_prompt: "Use $appium-interactive to run preflight-lite first, keep work inside the selected runtime anchor, and fail fast on invalid target shapes or runtime-anchor drift."

@@ -2,14 +2,11 @@
 
 Read this file when the task targets a physical Android device.
 
-## Target Selection
+Canonical target and recovery rules live in `SKILL.md` under `Target and Session Rules`. Read `references/session-recipes.md` for the full real-device session recipe. Use this file for target inspection and real-device-specific recovery notes.
 
-- Run `adb devices` before creating the Appium session.
-- If more than one Android target is listed, do not guess. Pick the exact ADB device entry you want to use and copy that entry into `TARGET_DEVICE.udid`.
-- Use `ro.serialno` only to prove whether multiple ADB entries point to the same physical phone. Deterministic selection comes from the chosen ADB device entry in `appium:udid`.
-- Treat `appium:deviceName` as descriptive metadata only. Mirror the chosen ADB device entry there if you want consistent logs, but do not rely on it for target selection.
+## Target Inspection Example
 
-If multiple device entries appear, use this standard procedure before choosing `TARGET_DEVICE.udid`:
+If multiple device entries appear, use this inspection procedure before setting `TARGET_DEVICE.udid`:
 
 1. Record each `adb devices` entry exactly as shown.
 2. Run `adb -s "<entry>" shell getprop ro.serialno` for each entry.
@@ -27,34 +24,20 @@ adb -s "adb-57261FDCH0006N._adb-tls-connect._tcp" shell getprop ro.serialno
 adb -s "adb-57261FDCH0006N._adb-tls-connect._tcp" shell getprop ro.product.model
 ```
 
-## Capability Pattern
+Treat `appium:deviceName` as descriptive metadata only. Mirror the chosen ADB device entry there if you want consistent logs, but do not rely on it for target selection.
 
-Use the shared `ANDROID_BASE_CAPS` from `SKILL.md`, then add:
+## Minimal Target Setup
+
+Use the shared helpers from `scripts/bootstrap-helpers.mjs`, then set the chosen real-device target:
 
 ```javascript
-TARGET_DEVICE = {
+setTargetDevice({
   kind: "real",
   udid: "192.168.0.109:32833",
-};
-
-wdOpts = {
-  automationProtocol: "webdriver",
-  hostname: "127.0.0.1",
-  port: 4723,
-  path: "/",
-  logLevel: "info",
-  injectGlobals: false,
-  capabilities: {
-    ...ANDROID_BASE_CAPS,
-    "appium:udid": TARGET_DEVICE.udid,
-    "appium:deviceName": TARGET_DEVICE.udid,
-    "appium:appPackage": "com.android.settings",
-    "appium:appActivity": ".Settings",
-  },
-};
+});
 ```
 
-Replace the app target with project-specific values when needed.
+Continue with the real-device session recipe in `references/session-recipes.md`.
 
 ## Recovery
 
