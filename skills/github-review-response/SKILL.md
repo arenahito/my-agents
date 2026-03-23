@@ -7,7 +7,7 @@ description: Handle GitHub pull request, review, and review comment URLs when th
 
 Use this skill when the user gives a GitHub URL that points to a pull request or review discussion and wants help deciding what to do next.
 
-This skill exists to keep the orchestrator small. Large review threads, PR context, and surrounding code should be handled in a minimal-context subagent whenever possible, without inheriting the full parent context by default.
+This skill keeps the parent agent small. Large review threads, PR context, and surrounding code must flow through staged subagents. The parent agent must not perform review intake or cluster-level analysis itself.
 
 ## Supported URLs
 
@@ -18,199 +18,99 @@ This skill exists to keep the orchestrator small. Large review threads, PR conte
 
 If the URL is not clearly one of the above, stop and say that the skill only handles GitHub PR review surfaces for now.
 
-## Orchestrator Role
+## Read This First
 
-The parent agent acts only as orchestrator.
+Keep `SKILL.md` as the contract and navigation layer. Read additional files only when the current phase needs them.
 
-Do directly:
+- At skill start, read only `SKILL.md`.
+- When you launch the intake subagent, read `references/intake.md`.
+- When intake returns clusters and you launch analysis subagents, read `references/analysis.md`.
+- When the parent agent assembles the final user-facing report, read `references/report-contract.md`.
 
-1. Identify the URL type and extract the smallest useful target:
+## Startup Gate
+
+Before reading any review surface, the parent agent must finish this gate.
+
+For every supported GitHub review URL, the parent agent may do only these steps directly:
+
+1. Identify the URL type and narrow the target to:
    - whole PR
    - one review
    - one comment or discussion
-2. Confirm whether the user wants:
+2. Confirm the user intent:
    - recommendation report
    - post-triage implementation follow-up
-3. Gather only the minimum context needed to start a subagent:
-   - URL
-   - local workspace path if known
-   - whether nitpicks should be included
-   - whether the user has already finished final triage
+3. Gather the minimal handoff input:
+   - target URL
+   - repository or workspace path if known
+   - nitpick policy
+   - triage state, including whether final triage is already complete
+   - required output contract
+4. Launch exactly one intake subagent with no automatic parent-context inheritance.
+5. After intake returns clusters, launch analysis subagents for independent clusters only.
 
-Do not directly:
+Until the intake subagent is launched, the parent agent must not fetch the review surface, read comment bodies, inspect repository code, or draft recommendation items.
 
-- read broad PR history unless needed to disambiguate the target
-- keep long comment bodies in the main context
-- keep large diffs or copied review text in the main context
-- mix actionable review work with unrelated refactors
+## Subagent Capability Policy
 
-## Subagent Requirement
+Subagent selection is a parent-only concern.
 
-For review intake, launch exactly one minimal-context subagent first, without inheriting the full parent context unless that is strictly necessary.
+For this skill, review triage uses one fixed capability floor across both intake and analysis.
 
-The first subagent should receive only:
+- treat review triage as a reasoning-heavy task, not a low-capability fast path
+- use review-capable subagents with sufficient reasoning quality for both intake and analysis
+- do not lower capability for speed alone
+- do not choose different capability tiers per cluster difficulty
+- if no subagent meeting that capability floor is available, do not silently fall back to a weaker substitute
 
-- the target URL
-- repository or workspace path if known
-- user constraints such as `nitpick included` or `nitpick excluded`
-- required output contract
+## Role Summary
 
-Recommended split:
+| Role | Responsibility |
+|---|---|
+| Parent agent | Triage the request shape, launch staged subagents, aggregate results, render the final report |
+| Intake subagent | Resolve the review surface, extract issues, cluster them, return cluster handoff material |
+| Analysis subagent | Analyze one cluster, inspect minimum needed repo context, decide item-level triage labels |
+| Implementation subagent | Make changes only after triage is complete and only for selected clusters |
+| Reviewer subagent | Review implementation results with minimal changed-file context |
 
-- intake subagent: resolve the URL target, fetch the review surface, identify actionable items, and cluster them into the smallest useful work buckets
-- follow-up investigation subagent: only when one cluster still needs repository inspection before implementation
-- implementation subagent: only if the user asked to make changes, and only for one cluster or one tightly related bucket at a time
-- reviewer subagent: only after implementation, with minimal changed-file context
+## Orchestration Sequence
 
-Do not reuse the intake subagent for implementation. Close it after it returns the recommendation-report input material.
+Use this sequence for review triage:
 
-## Intake Workflow
+1. Launch exactly one minimal-context intake subagent for the incoming URL.
+2. Close the intake subagent after it returns cluster handoff material.
+3. Launch zero or more cluster-scoped analysis subagents from that intake result.
+4. Aggregate the analysis results into the final user-facing recommendation report.
+5. Launch implementation or reviewer subagents only after analysis results exist and the user wants follow-up work.
 
-1. Resolve the GitHub surface from the URL.
-2. Fetch only the relevant review object:
-   - whole PR only when the user asked about the whole PR
-   - one review when given a review URL
-   - one discussion or one comment when given a comment URL
-3. Extract actionable items.
-4. Separate:
-   - actionable comments
-   - non-actionable comments
-   - ambiguous comments that need more repository context
-5. Cluster actionable items into the smallest useful groups. Prefer grouping by:
-   - shared files or modules
-   - shared behavior or failure mode
-   - shared implementation strategy
-   - shared test surface
-6. For each cluster, identify:
-   - included comments or comment ids
-   - likely affected files
-   - likely code path or behavior
-   - whether repository inspection is required
-   - whether the cluster is safe to implement independently
-7. If the linked discussion contains many distinct concerns, stop at clustering and hand the clusters back to the orchestrator instead of trying to fully resolve everything in one subagent.
-8. Return compact recommendation material to the orchestrator.
+Do not reuse the intake subagent for analysis or implementation.
+Do not reuse an analysis subagent for implementation.
 
-## Clustering Rule
+## Condensed Output Contract
 
-The intake subagent is not responsible for solving a large review thread end-to-end.
+For recommendation-report mode:
 
-Use one intake subagent per incoming URL as the default entry point. If that URL expands into many distinct concerns, the intake subagent should produce a partition plan rather than continue deeper analysis.
+- the parent agent returns one compact consolidated report
+- the visible report stays item-based, not cluster-based
+- analysis produces the final item-level `action`, `issue`, and `response` fields
+- the parent agent aggregates those results into the final user-facing report
 
-Prefer clustering over one-comment-per-subagent. Split to the next stage only after the intake result shows natural buckets.
-
-Strong signals to cluster:
-
-- more than 5 actionable comments
-- comments spread across 3 or more file groups
-- clearly different concerns such as UI, state, API, tests, typing, or accessibility
-- one discussion thread containing unrelated fixes
-
-## Tooling Guidance
-
-- Prefer your available GitHub integration, API client, connector, or MCP tools for PR, review, and comment retrieval.
-- If repository structure or ownership is unclear, hand off code discovery to a dedicated codebase exploration workflow instead of expanding the review intake subagent.
-- Keep review analysis and codebase exploration as separate subagent steps.
-
-## Output Contract
-
-For recommendation-report mode, return a compact result with one entry per review comment or discussion item that the user may need to triage.
-
-Use this item layout:
-
-- item title
-- URL
-- recommendation
-- issue
-- response
-
-Each entry should contain:
-
-- item title: a short summary of the review point; append ` (nitpick)` only when the reviewer explicitly marked the comment as nitpick
-- URL: show the raw URL directly, without a `Comment URL:` label
-- recommendation: one of the fixed recommendation labels below
-- issue: a short plain-language summary of the review point so the user does not need to open the URL just to recall the comment
-- response: a short multi-line explanation that combines the reason, the proposed handling approach when relevant, and any uncertainty or follow-up needed
-
-In addition, include these report-level summary sections:
-
-- a markdown table summarizing recommendation counts
-- proposed clusters
-- cluster independence notes
-- recommended next step
-
-For nitpick labeling:
-
-- show ` (nitpick)` at the end of the item title only when the reviewer explicitly marked the comment as nitpick
-- otherwise show no nitpick marker
-- do not infer nitpick status from the comment text
-
-For handling recommendations, use exactly one of these labels:
-
-- ⛔ must-fix
-- 🟡 should-fix
-- ⚪ can-skip
-- ❓ needs-confirmation
-
-Label meanings:
-
-- `⛔ must-fix`: likely actionable and important enough that the user should normally include it in final triage
-- `🟡 should-fix`: likely worth addressing, but urgency or scope is lower than `⛔ must-fix`
-- `⚪ can-skip`: likely safe to exclude from final triage based on current evidence
-- `❓ needs-confirmation`: more repository inspection, diff review, or user intent confirmation is needed before deciding
-
-For comments judged out of scope or low priority, give a short reason such as:
-
-- nitpick only
-- already addressed by later changes
-- unrelated to the requested scope
-- not enough context from the linked review surface alone
-
-## Report Template
-
-Use this output shape:
-
-```md
-## Recommendation Report
-
-### Summary
-
-| Recommendation | Count |
-|---|---:|
-| ⛔ must-fix | <n> |
-| 🟡 should-fix | <n> |
-| ⚪ can-skip | <n> |
-| ❓ needs-confirmation | <n> |
-
-### Items
-
-#### 1. <short title>
-- `<url>`
-- Recommendation: `⛔ must-fix`
-- Issue: <short summary of the review point>
-- Response:
-  <reason>
-  <proposed handling approach if relevant>
-  <uncertainty or follow-up note if relevant>
-
-#### 2. <short title> (nitpick)
-- `<url>`
-- Recommendation: `⚪ can-skip`
-- Issue: <short summary of the review point>
-- Response:
-  <reason>
-  <proposed handling approach if relevant>
-```
-
-When the reviewer did not explicitly mark nitpick, do not add any nitpick suffix to the title.
+The detailed intake contract lives in `references/intake.md`.
+The detailed analysis contract, including parallelism and batching, lives in `references/analysis.md`.
+The visible report format, action labels, file-link rules, nitpick rule, and report template live in `references/report-contract.md`.
 
 ## Guardrails
 
 - Default to the narrowest possible review surface.
+- The parent agent must not fetch the review surface, read comment bodies, classify actionability, cluster items, perform cluster-level detailed analysis, draft recommendation entries, or inspect repository code before the relevant subagent returns.
+- Always start with exactly one intake subagent, even for a single comment URL.
+- Final recommendation labels belong to analysis subagents, not intake.
 - Do not treat the full PR as required context when the user gave one review or one discussion URL.
 - Do not quote large review bodies back into the main thread.
 - Do not run lint, tests, or builds during pure intake or triage.
 - Do not let the orchestrator accumulate raw review data.
-- If the user wants implementation, assume the user has already completed final triage and start a fresh implementation or investigation subagent per cluster rather than continuing in the same review-analysis subagent.
+- Do not use low-capability fast-path subagents for intake or analysis.
+- If the parent agent is blocked on intake or analysis results, wait rather than duplicating the same work locally.
 
 ## Example Prompts
 
