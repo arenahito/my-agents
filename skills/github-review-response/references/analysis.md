@@ -64,11 +64,11 @@ Use one analysis subagent per independent cluster.
 
 Parallelize only when clusters are independent and non-overlapping.
 
-Default limit:
+Do not impose a fixed analysis-subagent concurrency cap in this skill.
 
-- run at most 3 analysis subagents at the same time
-- if there are more than 3 clusters, process them in batches
-- prefer batching by cluster independence first, then by likely importance
+Batch clusters only when batching helps keep the work scoped and non-overlapping.
+
+Prefer scheduling by cluster independence first, then by likely importance.
 
 ## Parent Wait Boundary
 
@@ -78,7 +78,7 @@ Allowed parent work while waiting:
 
 - keep track of user constraints and chosen mode
 - prepare the final report shell
-- batch independent clusters when there are more than 3
+- batch independent clusters when that helps keep orchestration manageable
 - aggregate completed analysis results into the final report
 
 If there is no clearly non-overlapping local work, the parent agent should wait.
