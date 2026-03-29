@@ -54,6 +54,13 @@
 - Use "fd" instead of "find".
 - Use "rg" (ripgrep) instead of "grep".
 
+## Context Efficiency
+- Prefer paths relative to `workdir` for shell commands and tool calls when the target is inside the current project or workspace.
+- Set `workdir` deliberately before running file-oriented commands, then use relative paths instead of repeating long absolute prefixes.
+- This is especially important for repeated read, search, and listing commands because the command string itself consumes context.
+- Keep absolute paths when the target is outside `workdir`, when crossing multiple workspaces, or when a full path is required for an unambiguous user-facing reference.
+- Do not sacrifice clarity for brevity: if a relative path would be ambiguous in the current context, use an absolute path.
+
 ## Windows
 - When modifying files, beware of OS Error 206 (command length limit). Avoid large file updates in a single `apply_patch`. Instead, break them down into smaller chunks—for example, create a minimal skeleton file first, then update it incrementally (e.g., method by method).
 - When running shell commands (rg, fd, etc.) in PowerShell, always wrap file/directory paths in double quotes to handle special characters like `()`, `[]`, spaces, etc. Example: `rg "pattern" "C:\Project (old)\src"`
