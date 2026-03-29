@@ -111,9 +111,3 @@ The visible report format, action labels, file-link rules, nitpick rule, and rep
 - Do not let the orchestrator accumulate raw review data.
 - Do not use low-capability fast-path subagents for intake or analysis.
 - If the parent agent is blocked on intake or analysis results, wait rather than duplicating the same work locally.
-
-## Example Prompts
-
-- "Inspect this GitHub review URL and return a recommendation report with comment URLs, handling recommendations, reasons, and proposed handling approaches."
-- "Analyze this PR comment URL, ignore nitpicks, and return a recommendation report I can use for final triage."
-- "The final triage is done. Use this PR URL to prepare implementation follow-up for the selected review items."
