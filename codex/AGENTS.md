@@ -52,7 +52,6 @@
 
 ## Command
 - When running external shell commands, always prefix them with `rtk` (for example, `rtk git log` or `rtk go test`).
-- Do not use `rtk` for PowerShell built-in commands such as `Get-Content`.
 - Use "fd" instead of "find".
 - Use "rg" (ripgrep) instead of "grep".
 
