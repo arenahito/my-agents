@@ -14,7 +14,7 @@ my-agents/
 | Repository Path | Global Path |
 | --- | --- |
 | `codex/` | `~/.codex/` |
-| `skills/` | `~/.agents/skills/` |
+| `skills/` | `~/.agents/skills/my-skills/` |
 | `rtk/` | `~/.config/rtk/` |
 
 ## Directory & File Descriptions
