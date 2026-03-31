@@ -25,7 +25,7 @@ multi_agent = true
 responses_websockets_v2 = true
 prevent_idle_sleep = true
 voice_transcription = true
-memories = true
+# memories = true
 js_repl = true
 default_mode_request_user_input = true
 
@@ -67,7 +67,7 @@ hide_gpt5_1_migration_prompt = true
 "gpt-5.2" = "gpt-5.2-codex"
 
 [agents]
-max_threads = 24
+max_threads = 12
 # max_depth = 3
 
 [windows]

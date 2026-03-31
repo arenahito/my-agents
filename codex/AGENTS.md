@@ -51,7 +51,7 @@
   - Write commit messages in the language specified by the repository. If not explicitly specified, use the language of the README. If there is no README or the language cannot be inferred, use English.
 
 ## Command
-- When running external shell commands, always prefix them with `rtk` (for example, `rtk git log` or `rtk go test`).
+- When running external shell commands, always prefix them with `rtk`, except for PowerShell built-in cmdlets (for example, `rtk git log`, `rtk go test`, but `Get-Content` and `Select-String` do not use `rtk`).
 - Use "fd" instead of "find".
 - Use "rg" (ripgrep) instead of "grep".
 
