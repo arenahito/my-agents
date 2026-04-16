@@ -11,13 +11,13 @@ suppress_unstable_features_warning = true
 web_search = "live"
 personality = "friendly"
 service_tier = "fast"
-model_context_window = 400000
+# model_context_window = 400000
 
 [features]
 unified_exec = true
 shell_snapshot = true
 powershell_utf8 = true
-steer = true
+# steer = true
 collaboration_modes = true
 apps = true
 personality = true
@@ -28,6 +28,8 @@ voice_transcription = true
 # memories = true
 js_repl = true
 default_mode_request_user_input = true
+codex_hooks = true
+tool_search = true
 
 [sandbox_workspace_write]
 network_access = true
@@ -41,9 +43,9 @@ theme = "monokai-extended"
 url = "https://mcp.context7.com/mcp"
 env_http_headers = { "CONTEXT7_API_KEY" = "CONTEXT7_API_KEY" }
 
-[mcp_servers.deepwiki]
-url = "https://mcp.deepwiki.com/mcp"
-startup_timeout_sec = 60.0
+# [mcp_servers.deepwiki]
+# url = "https://mcp.deepwiki.com/mcp"
+# startup_timeout_sec = 60.0
 
 # [mcp_servers.exa]
 # url = "https://mcp.exa.ai/mcp"
