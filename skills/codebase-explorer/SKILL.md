@@ -1,18 +1,19 @@
 ---
 name: codebase-explorer
-description: Fast codebase exploration for unfamiliar or partially familiar repositories. Use when Codex needs to map repository structure, find entry points, trace where a feature or bug lives, identify ownership boundaries, follow data flow across modules, inspect config/build/test surfaces, or answer broad "where is X?" and "how does Y work?" questions. The main agent orchestrates and synthesizes; fast-model subagents handle the actual exploration at 10x+ speed.
+description: Fast project exploration for unfamiliar or partially familiar repositories and workspaces. Use when Codex needs to map repository structure, find entry points, trace where a feature or bug lives, identify ownership boundaries, follow data flow across modules, inspect logs/config/build/test/runtime surfaces, or answer broad "where is X?" and "how does Y work?" questions. The exploration scope includes source code plus project artifacts such as configuration files, manifests, scripts, logs, traces, fixtures, generated metadata, docs, and CI/deployment files. The main agent orchestrates and synthesizes; fast-model subagents handle the actual exploration at 10x+ speed.
 ---
 
 # Codebase Explorer
 
-Use this skill to understand a codebase quickly before implementation, debugging, or review. The main agent acts strictly as orchestrator: it triages the request, dispatches fast-model subagents for all exploration, and synthesizes the findings. The main agent must not perform exploration directly.
+Use this skill to understand a codebase or project workspace quickly before implementation, debugging, or review. "Codebase" means the source code and any project artifacts needed to understand behavior: configuration, manifests, scripts, logs, traces, fixtures, generated metadata, documentation, CI/deployment files, and runtime outputs. The main agent acts strictly as orchestrator: it triages the request, dispatches fast-model subagents for all exploration, and synthesizes the findings. The main agent must not perform exploration directly.
 
 ## Exploration Goals
 
 - map the repository and identify the most relevant directories, packages, and entry points
 - locate the implementation of a feature, error, route, component, command, or symbol
 - trace data flow, dependency flow, or ownership boundaries across files
-- identify the config, build, test, and runtime surfaces that constrain later work
+- identify the logs, config, build, test, and runtime surfaces that constrain later work
+- inspect non-code artifacts when they explain behavior, failures, environment assumptions, or operational state
 - report what is confirmed, what is inferred, and what still needs verification
 
 ## Quick Triage
@@ -23,12 +24,12 @@ The main agent performs this step directly — it is lightweight and sets the di
    - repository overview
    - feature or bug location
    - symbol or API usage tracing
-   - config, build, or test surface discovery
+   - logs, config, build, test, or runtime surface discovery
    - end-to-end flow tracing
 2. Narrow the scope as much as possible:
    - workspace, package, app, or service
    - language or framework
-   - known path fragments, symbols, routes, commands, error strings, or filenames
+   - known path fragments, symbols, routes, commands, error strings, log lines, config keys, environment variables, or filenames
 3. Decide delegation strategy:
    - determine how many subagents are needed and what each should investigate
    - identify natural split boundaries (by layer, domain, or concern)
@@ -49,7 +50,7 @@ The main agent must not read files, run searches, or trace code directly. Its on
 
 - Repository structure and entry-point mapping
 - Symbol, route, error string, or API surface searching
-- Manifest and config file reading
+- Manifest, config, script, log, trace, and runtime artifact reading
 - Call-site and reference tracing
 
 ### Keep in the main agent
@@ -71,7 +72,7 @@ Only parallelize when the work splits into independent, non-overlapping question
 
 By concern:
 
-- architecture and entry points / feature implementation and call sites / config, tests, and integration
+- architecture and entry points / feature implementation and call sites / logs, config, tests, runtime outputs, and integration
 
 By domain:
 
@@ -87,8 +88,8 @@ For each subagent:
 
 - give one concrete question
 - assign an explicit scope by path, layer, package, or concern
-- tell it to search first and read only the most relevant files
-- require exact file paths, key symbols, and a short confidence note in the result
+- tell it to search first and read only the most relevant files or artifacts
+- require exact paths, key symbols/config keys/log lines, and a short confidence note in the result
 
 Do not:
 
@@ -101,7 +102,7 @@ Do not:
 ### Repository Overview
 
 1. Triage: identify if the repo is monorepo, single-app, library, or multi-service.
-2. Dispatch subagent(s) to map root structure, packages, entry points, and manifests.
+2. Dispatch subagent(s) to map root structure, packages, entry points, manifests, and relevant config/runtime artifact locations.
 3. Split further only if the repo has clearly distinct domains.
 4. Synthesize a map of the repository with main responsibilities and entry points.
 
@@ -124,12 +125,12 @@ Do not:
 Always provide:
 
 - a concise answer to the user's exploration question
-- the key files or directories with exact paths
-- the most important symbols, commands, routes, or configuration points
+- the key files, artifacts, or directories with exact paths
+- the most important symbols, commands, routes, configuration points, log lines, or runtime surfaces
 - explicit separation of confirmed facts vs. informed inferences
 - remaining unknowns or the next best places to inspect
 
-For broad explorations, prefer a short map over a file dump. Link evidence to the smallest useful set of files.
+For broad explorations, prefer a short map over a file dump. Link evidence to the smallest useful set of files or artifacts.
 
 ## Guardrails
 
@@ -137,7 +138,7 @@ For broad explorations, prefer a short map over a file dump. Link evidence to th
 - Do not mistake wide search for useful understanding.
 - Do not skip triage — even a lightweight classification prevents wasted subagent work.
 - Do not let subagents duplicate the same reading work.
-- Do not over-read irrelevant files once the ownership boundary is known.
+- Do not over-read irrelevant files or artifacts once the ownership boundary is known.
 - Do not present an inference as confirmed behavior.
 - Do not turn exploration into implementation unless the user asks for it.
 - Do not retain work in the main agent that a subagent can perform faster without loss of quality.

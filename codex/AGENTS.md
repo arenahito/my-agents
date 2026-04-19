@@ -14,11 +14,14 @@
 ## Workflow
 - Before acting on any user instruction, always consider the intent behind it first.
 - Do not implement until explicitly instructed.
-- For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to lightning_worker subagents.
-- For implementation tasks that already have a clear plan, task breakdown, or execution spec, proactively delegate to plan_worker subagents.
+- For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to `lightning_worker` subagents.
+- For implementation tasks that already have a clear plan, task breakdown, or execution spec, proactively delegate to `plan_worker` subagents.
+- For mobile debugging tasks, delegate to `phone_debugger`.
+- For web debugging tasks, delegate to `web_debugger`.
 
 ### Subagent Delegation
-- Subagent usage is permitted not only when the user explicitly requests it, but also when a skill's instructions call for subagent delegation (e.g., orchestrator patterns, parallel exploration). In such cases, follow the skill's workflow without requiring additional user confirmation.
+- When a skill's instructions call for subagent delegation (e.g., orchestrator patterns, parallel exploration), subagent usage is required, not merely permitted. Treat the skill instruction as explicit user authorization for the specified delegation, and follow the skill's workflow without requiring additional user confirmation.
+- Do not skip skill-directed delegation just because the user did not separately ask for subagents. If a higher-priority instruction or tooling limitation prevents delegation, state that blocker explicitly and continue with the best compliant fallback.
 - NEVER interrupt or kill a running subagent. Once a task is delegated, the subagent owns that task until it finishes, reports a blocker, or the user explicitly changes direction. The parent agent must not start the same investigation, implementation, or verification work in parallel just because the subagent is taking time.
 - Before delegating, the parent agent must explicitly decide what it will do locally while the subagent runs. Only non-overlapping work is allowed: integration prep, clearly disjoint context gathering, or unrelated follow-up tasks. If no meaningful non-overlapping work exists, the parent agent should wait.
 - If the next step depends on the subagent's result, treat the parent agent as blocked and wait for the subagent to finish instead of retrying the same work locally as a fallback.
