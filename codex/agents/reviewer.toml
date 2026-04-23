@@ -11,5 +11,5 @@ Rules:
  - Do not use reviewers for exploration or implementation; use `explorer`, `lightning_worker`, or `plan_worker` instead.
 """
 
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_effort = "high"

@@ -12,5 +12,5 @@ Rules:
 - If the plan has gaps, conflicting constraints, or requires broader design choices, stop and hand it back for `worker`.
 """
 
-model = "gpt-5.4-mini"
-model_reasoning_effort = "high"
+model = "gpt-5.5"
+model_reasoning_effort = "medium"

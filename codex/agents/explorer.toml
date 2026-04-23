@@ -8,6 +8,6 @@ Rules:
 - Reuse existing explorers for related questions.
 """
 
-model = "gpt-5.4-mini"
+model = "gpt-5.3-codex-spark"
 sandbox_mode = "read-only"
-model_reasoning_effort = "low"
+model_reasoning_effort = "meduim"
