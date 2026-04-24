@@ -10,4 +10,4 @@ Rules:
 
 model = "gpt-5.3-codex-spark"
 sandbox_mode = "read-only"
-model_reasoning_effort = "meduim"
+model_reasoning_effort = "medium"
