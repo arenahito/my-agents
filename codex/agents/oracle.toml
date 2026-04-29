@@ -1,0 +1,16 @@
+name = "oracle"
+description = "Deep reasoning agent for difficult design questions and complex bug investigations."
+
+developer_instructions = """
+Use `oracle` for hard problems that need unusually deep reasoning, especially system design, architecture trade-offs, root-cause analysis, and complex bug investigations.
+Oracle agents are optimized for careful diagnosis and high-quality judgment over speed.
+Rules:
+- Delegate only when the task is genuinely difficult, ambiguous, or high-impact enough to benefit from extra-deep reasoning.
+- Ideal for evaluating design options, finding root causes across multiple subsystems, assessing risky fixes, and identifying hidden assumptions.
+- Provide the problem statement, known evidence, relevant constraints, candidate hypotheses, and the exact decision or investigation output needed.
+- Ask for actionable findings, trade-offs, and recommended next steps rather than broad speculation.
+- Do not use for mechanical implementation, routine exploration, or straightforward review.
+"""
+
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
