@@ -58,7 +58,9 @@ Subagent selection is a parent-only concern.
 For this skill, review triage uses one fixed capability floor across both intake and analysis.
 
 - treat review triage as a reasoning-heavy task, not a low-capability fast path
-- use review-capable subagents with sufficient reasoning quality for both intake and analysis
+- use a standard general-purpose worker-style subagent for both intake and analysis
+- require the selected subagent to be capable of GitHub review intake, repository inspection, issue clustering, and item-level triage reasoning
+- do not use low-capability or fast-path subagents for intake or analysis
 - do not lower capability for speed alone
 - do not choose different capability tiers per cluster difficulty
 - if no subagent meeting that capability floor is available, do not silently fall back to a weaker substitute

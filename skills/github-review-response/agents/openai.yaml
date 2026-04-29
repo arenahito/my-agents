@@ -1,4 +1,4 @@
 interface:
   display_name: "GitHub Review Response"
   short_description: "Triage GitHub PR review URLs with minimal-context subagents"
-  default_prompt: "Use $github-review-response to launch one intake subagent first, then launch cluster-scoped analysis subagents from the intake result, keep the parent as orchestrator, and aggregate the final triage report without letting the parent perform intake or cluster analysis directly. Treat review triage as reasoning-heavy work and do not route it through a low-capability fast path."
+  default_prompt: "Use $github-review-response to launch one intake subagent first, then launch cluster-scoped analysis subagents from the intake result, keep the parent as orchestrator, and aggregate the final triage report without letting the parent perform intake or cluster analysis directly. Treat review triage as reasoning-heavy work and route intake/analysis to a standard general-purpose worker-style subagent capable of GitHub review intake, repository inspection, issue clustering, and item-level triage reasoning; do not use low-capability or fast-path subagents."
