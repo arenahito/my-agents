@@ -72,4 +72,5 @@
 
 ## MCP
 - Always use context7 MCP when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
+- When web search is needed, prefer the Exa MCP tools before other web search tools.
 - If you are unsure how to do something, use `gh_grep` to search code examples from github.
