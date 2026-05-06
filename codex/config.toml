@@ -1,7 +1,7 @@
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_summary = "auto"
-approval_policy = "never"
-sandbox_mode    = "danger-full-access"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
 # sandbox_mode    = "workspace-write"
 model_reasoning_effort = "high"
 windows_wsl_setup_acknowledged = true
@@ -11,6 +11,7 @@ suppress_unstable_features_warning = true
 web_search = "live"
 personality = "friendly"
 service_tier = "fast"
+approvals_reviewer = "user"
 # model_context_window = 400000
 
 [features]
@@ -25,13 +26,18 @@ multi_agent = true
 responses_websockets_v2 = true
 prevent_idle_sleep = true
 voice_transcription = true
-# memories = true
+memories = true
 js_repl = true
 default_mode_request_user_input = true
 codex_hooks = true
 tool_search = true
+guardian_approval = true
+image_generation = true
+chronicle = false
+goals = true
 
 [sandbox_workspace_write]
+writable_roots = []
 network_access = true
 
 [tui]
@@ -47,9 +53,9 @@ env_http_headers = { "CONTEXT7_API_KEY" = "CONTEXT7_API_KEY" }
 # url = "https://mcp.deepwiki.com/mcp"
 # startup_timeout_sec = 60.0
 
-# [mcp_servers.exa]
-# url = "https://mcp.exa.ai/mcp"
-# startup_timeout_sec = 60.0
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+startup_timeout_sec = 60.0
 
 [mcp_servers.gh_grep]
 url = "https://mcp.grep.app"
@@ -74,3 +80,11 @@ max_threads = 12
 
 [windows]
 sandbox = "elevated"
+
+[memories]
+generate_memories = true
+use_memories = true
+consolidation_model = "gpt-5.4-mini"
+extract_model = "gpt-5.4-mini"
+max_raw_memories_for_consolidation = 128
+max_unused_days = 14
