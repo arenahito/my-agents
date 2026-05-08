@@ -1,11 +1,11 @@
 ---
 name: codebase-explorer
-description: Fast project exploration for unfamiliar or partially familiar repositories and workspaces. Use when Codex needs to map repository structure, find entry points, trace where a feature or bug lives, identify ownership boundaries, follow data flow across modules, inspect logs/config/build/test/runtime surfaces, or answer broad "where is X?" and "how does Y work?" questions. The exploration scope includes source code plus project artifacts such as configuration files, manifests, scripts, logs, traces, fixtures, generated metadata, docs, and CI/deployment files. The main agent orchestrates and synthesizes; fast-model subagents handle the actual exploration at 10x+ speed.
+description: Fast project exploration for unfamiliar or partially familiar repositories and workspaces. Use when Codex needs to map repository structure, find entry points, trace where a feature or bug lives, identify ownership boundaries, follow data flow across modules, inspect logs/config/build/test/runtime surfaces, or answer broad "where is X?" and "how does Y work?" questions. The exploration scope includes source code plus project artifacts such as configuration files, manifests, scripts, logs, traces, fixtures, generated metadata, docs, and CI/deployment files. The main agent orchestrates and synthesizes; fast-model subagents handle fresh exploration when the answer is not already supported by task-local evidence.
 ---
 
 # Codebase Explorer
 
-Use this skill to understand a codebase or project workspace quickly before implementation, debugging, or review. "Codebase" means the source code and any project artifacts needed to understand behavior: configuration, manifests, scripts, logs, traces, fixtures, generated metadata, documentation, CI/deployment files, and runtime outputs. The main agent acts strictly as orchestrator: it triages the request, dispatches fast-model subagents for all exploration, and synthesizes the findings. The main agent must not perform exploration directly.
+Use this skill to understand a codebase or project workspace quickly before implementation, debugging, or review. "Codebase" means the source code and any project artifacts needed to understand behavior: configuration, manifests, scripts, logs, traces, fixtures, generated metadata, documentation, CI/deployment files, and runtime outputs. The main agent acts as orchestrator: it triages the request, decides whether fresh exploration is needed, dispatches fast-model subagents when it is, and synthesizes the findings. If the answer is already supported by task-local evidence from the current conversation, recent work, or previously collected results, the main agent may answer directly without rediscovering that information through a subagent.
 
 ## Exploration Goals
 
@@ -31,20 +31,21 @@ The main agent performs this step directly — it is lightweight and sets the di
    - language or framework
    - known path fragments, symbols, routes, commands, error strings, log lines, config keys, environment variables, or filenames
 3. Decide delegation strategy:
+   - first decide whether the question is answerable from existing context, needs only narrow clarification, or needs fresh codebase exploration
    - determine how many subagents are needed and what each should investigate
    - identify natural split boundaries (by layer, domain, or concern)
-   - if the scope is already narrow, a single subagent may suffice
+   - if existing evidence is sufficient, use zero subagents; if the scope is already narrow but still needs exploration, a single subagent may suffice
 
 ## Orchestration Model
 
-The main agent orchestrates; subagents explore. The fast model handles codebase exploration competently and operates at 10x+ speed. All file reading, searching, and code tracing must go through subagents.
+The main agent orchestrates; subagents explore when fresh exploration is needed. The fast model handles unfamiliar-codebase exploration competently and operates at 10x+ speed. Broad file reading, searching, and code tracing should go through subagents when the main agent does not already have sufficient task-local evidence.
 
 | Role | Responsibility |
 |---|---|
 | **Main agent** | Triage, exploration strategy, split decisions, synthesis, judgment |
 | **Subagents (fast)** | File scanning, pattern searching, code reading, structure mapping |
 
-The main agent must not read files, run searches, or trace code directly. Its only pre-delegation work is the triage step: classifying the request and identifying known constraints. All exploration goes to subagents.
+The main agent should not start fresh repository exploration directly. Its pre-delegation work is the triage step: classifying the request, identifying known constraints, and deciding whether existing context already answers the question. Fresh exploration goes to subagents.
 
 ### Delegate to subagents
 
@@ -52,19 +53,21 @@ The main agent must not read files, run searches, or trace code directly. Its on
 - Symbol, route, error string, or API surface searching
 - Manifest, config, script, log, trace, and runtime artifact reading
 - Call-site and reference tracing
+- Fresh exploration when the main agent cannot answer confidently from existing task-local evidence
 
 ### Keep in the main agent
 
 - Interpreting the user's actual intent behind the question
 - Deciding split boundaries when domain structure is unclear
+- Answering questions that are already supported by current conversation context, recent implementation or review work, or previously collected command results
 - Resolving conflicts or ambiguities across subagent findings
 - Final synthesis and confidence assessment
 
 ## Subagent Exploration
 
-Fewer subagents is better when the scope is already narrow.
+Fewer subagents is better when the scope is already narrow. Zero subagents is correct when existing task-local evidence is enough to answer.
 
-Dispatch subagents for all exploration work, including initial reconnaissance. The main agent's triage determines the split, then subagents execute.
+Dispatch subagents for exploration work that is not already covered by the main agent's context, including initial reconnaissance of unfamiliar code. The main agent's triage determines the split, then subagents execute.
 
 Only parallelize when the work splits into independent, non-overlapping questions. Keep synthesis and ambiguity resolution in the main agent.
 
@@ -102,7 +105,7 @@ Do not:
 ### Repository Overview
 
 1. Triage: identify if the repo is monorepo, single-app, library, or multi-service.
-2. Dispatch subagent(s) to map root structure, packages, entry points, manifests, and relevant config/runtime artifact locations.
+2. Dispatch subagent(s) to map root structure, packages, entry points, manifests, and relevant config/runtime artifact locations when those facts are not already available.
 3. Split further only if the repo has clearly distinct domains.
 4. Synthesize a map of the repository with main responsibilities and entry points.
 
@@ -134,7 +137,9 @@ For broad explorations, prefer a short map over a file dump. Link evidence to th
 
 ## Guardrails
 
-- The main agent must not read files, run searches, or trace code directly — all exploration goes through subagents.
+- Do not delegate just to rediscover information already available to the main agent.
+- Do not answer from memory or stale assumptions when the question actually needs fresh codebase exploration.
+- The main agent should not do broad fresh file reading, searching, or code tracing directly — fresh exploration goes through subagents.
 - Do not mistake wide search for useful understanding.
 - Do not skip triage — even a lightweight classification prevents wasted subagent work.
 - Do not let subagents duplicate the same reading work.
