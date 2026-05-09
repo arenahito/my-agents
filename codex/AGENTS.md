@@ -15,7 +15,6 @@
 - Before acting on any user instruction, always consider the intent behind it first.
 - Do not implement until explicitly instructed.
 - For tasks that are simple/repetitive but high in volume (e.g., bulk renames, formatting across many files, applying the same pattern repeatedly), proactively delegate to `lightning_worker` subagents.
-- For implementation tasks that already have a clear plan, task breakdown, or execution spec, proactively delegate to `plan_worker` subagents.
 - For mobile debugging tasks, delegate to `phone_debugger`.
 - For web debugging tasks, delegate to `web_debugger`.
 
@@ -68,7 +67,6 @@
 ## Windows
 - When modifying files, beware of OS Error 206 (command length limit). Avoid large file updates in a single `apply_patch`. Instead, break them down into smaller chunks—for example, create a minimal skeleton file first, then update it incrementally (e.g., method by method).
 - When running shell commands (rg, fd, etc.) in PowerShell, always wrap file/directory paths in double quotes to handle special characters like `()`, `[]`, spaces, etc. Example: `rg "pattern" "C:\Project (old)\src"`
-- Use `npm.cmd` instead of `npm`. The bare `npm` command may fail or hang in some Windows shell environments.
 
 ## MCP
 - Always use context7 MCP when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
