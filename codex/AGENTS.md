@@ -56,6 +56,7 @@
 - When running external shell commands, always prefix them with `rtk`, except for PowerShell built-in cmdlets (for example, `rtk git log`, `rtk go test`, but `Get-Content` and `Select-String` do not use `rtk`).
 - Use "fd" instead of "find".
 - Use "rg" (ripgrep) instead of "grep".
+- External commands can fail with permission errors caused by sandbox restrictions. When a permission error appears to be caused by sandbox restrictions, request the required permission instead of immediately looking for an alternative approach; only consider alternative approaches after the permission request is denied.
 
 ## Context Efficiency
 - Prefer paths relative to `workdir` for shell commands and tool calls when the target is inside the current project or workspace.
