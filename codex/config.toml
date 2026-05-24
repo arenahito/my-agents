@@ -2,15 +2,13 @@ model = "gpt-5.5"
 model_reasoning_summary = "auto"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
-# sandbox_mode    = "workspace-write"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 windows_wsl_setup_acknowledged = true
 tool_output_token_limit = 50000
 file_opener = "vscode"
 suppress_unstable_features_warning = true
 web_search = "live"
 personality = "friendly"
-service_tier = "fast"
 approvals_reviewer = "user"
 # model_context_window = 400000
 
@@ -18,7 +16,6 @@ approvals_reviewer = "user"
 unified_exec = true
 shell_snapshot = true
 powershell_utf8 = true
-# steer = true
 collaboration_modes = true
 apps = true
 personality = true
@@ -84,7 +81,76 @@ sandbox = "elevated"
 [memories]
 generate_memories = true
 use_memories = true
-consolidation_model = "gpt-5.4-mini"
-extract_model = "gpt-5.4-mini"
 max_raw_memories_for_consolidation = 128
 max_unused_days = 14
+disable_on_external_context = true
+
+[plugins."build-web-apps@openai-curated"]
+enabled = true
+
+[plugins."expo@openai-curated"]
+enabled = true
+
+[plugins."codex-security@openai-curated"]
+enabled = true
+
+[plugins."canva@openai-curated"]
+enabled = true
+
+[plugins."hyperframes@openai-curated"]
+enabled = true
+
+[plugins."openai-developers@openai-curated"]
+enabled = true
+
+[plugins."notion@openai-curated"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."chrome@openai-bundled"]
+enabled = true
+
+[desktop]
+ambient-suggestions-enabled = false
+appearanceDarkCodeThemeId = "linear"
+sansFontSize = 13
+codeFontSize = 12
+dictationDictionary = []
+localeOverride = "en-US"
+notifications-turn-mode = "off"
+notifications-permissions-enabled = false
+notifications-questions-enabled = false
+selected-avatar-id = "custom:chisa-pon"
+conversationDetailMode = "STEPS_COMMANDS"
+appearanceDiffMarkerStyle = "color"
+usePointerCursors = true
+
+[desktop.appearanceDarkChromeTheme]
+accent = "#606acc"
+contrast = 60
+ink = "#e3e4e6"
+opaqueWindows = false
+surface = "#0f0f11"
+
+[desktop.appearanceDarkChromeTheme.fonts]
+code = "HackGen"
+ui = "Noto Sans JP"
+
+[desktop.appearanceDarkChromeTheme.semanticColors]
+diffAdded = "#69c967"
+diffRemoved = "#ff7e78"
+skill = "#c2a1ff"
+
+[desktop.open-in-target-preferences]
+global = "zed"
