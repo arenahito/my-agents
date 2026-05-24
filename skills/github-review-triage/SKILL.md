@@ -45,6 +45,7 @@ For every supported GitHub review URL, the parent agent may do only these steps 
    - repository or workspace path if known
    - nitpick policy
    - triage state, including whether final triage is already complete
+   - whether the user is asking for initial triage, reply drafts for finalized skipped items, or implementation follow-up
    - required output contract
 4. Launch exactly one intake subagent with no automatic parent-context inheritance.
 5. After intake returns clusters, launch analysis subagents for independent clusters only.
@@ -97,6 +98,15 @@ For recommendation-report mode:
 - analysis produces the final item-level `action`, `issue`, and `response` fields
 - the parent agent aggregates those results into the final user-facing report
 
+For reply-draft mode after the user finalizes which items do not need implementation:
+
+- generate reply drafts only for items the user has finalized as skipped or otherwise not requiring implementation
+- do not post reply drafts to GitHub during draft generation
+- if the user later explicitly asks to post a specific draft, treat posting as a separate follow-up action
+- group reply drafts by GitHub URL, not by triage item
+- include each draft with the GitHub URL it should be posted to
+- when multiple skipped triage items map to the same GitHub URL, combine them into one coherent reply draft
+
 The detailed intake contract lives in `references/intake.md`.
 The detailed analysis contract, including parallelism and batching, lives in `references/analysis.md`.
 The visible report format, action labels, file-link rules, nitpick rule, and report template live in `references/report-contract.md`.
@@ -112,4 +122,5 @@ The visible report format, action labels, file-link rules, nitpick rule, and rep
 - Do not run lint, tests, or builds during pure intake or triage.
 - Do not let the orchestrator accumulate raw review data.
 - Do not use low-capability fast-path subagents for intake or analysis.
+- Do not create reply drafts before the user has finalized which triage items do not need implementation, unless the user explicitly asks for provisional drafts.
 - If the parent agent is blocked on intake or analysis results, wait rather than duplicating the same work locally.

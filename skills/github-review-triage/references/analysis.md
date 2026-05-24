@@ -11,6 +11,7 @@ Its job is to:
 - read the cluster-specific review context
 - inspect the minimum repository context needed for that cluster
 - decide item-level triage outcomes inside that cluster
+- preserve enough reasoning for later skipped-item reply drafting
 - return compact final triage material for the parent agent to aggregate
 
 Its job is not to:
@@ -53,8 +54,13 @@ Return:
   - final recommendation
   - issue
   - response
+  - reply draft material when the item may be skipped, including the reason to communicate externally
   - confidence or uncertainty
 - whether implementation follow-up is needed for the cluster
+
+The `response` field is for the user-facing triage report. It explains why the item received its recommendation and what handling approach is suggested.
+
+Reply draft material is for later GitHub-facing text only. Keep it concise, externally suitable, and tied to the item's GitHub URL so the parent can group multiple skipped items under the same URL after the user finalizes the skip decisions.
 
 The visible report remains item-based. The parent agent is responsible for aggregating multiple cluster results into the final report.
 
