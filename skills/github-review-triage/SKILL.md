@@ -1,9 +1,9 @@
 ---
-name: github-review-response
+name: github-review-triage
 description: Handle GitHub pull request, review, and review comment URLs when the user wants response planning, triage, or implementation follow-up. Use when a user provides a GitHub PR URL, pull request review URL, review comment URL, or PR discussion URL and asks what to fix, what can be ignored, or how to respond. The orchestrator stays thin and delegates the heavy review intake to a minimal-context subagent.
 ---
 
-# GitHub Review Response
+# GitHub Review Triage
 
 Use this skill when the user gives a GitHub URL that points to a pull request or review discussion and wants help deciding what to do next.
 
