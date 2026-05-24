@@ -53,7 +53,9 @@
   - Write commit messages in the language specified by the repository. If not explicitly specified, use the language of the README. If there is no README or the language cannot be inferred, use English.
 
 ## Command
-- When running external shell commands, always prefix them with `rtk`, except for PowerShell built-in cmdlets (for example, `rtk git log`, `rtk go test`, but `Get-Content` and `Select-String` do not use `rtk`).
+- rtk usage rules:
+  - When executing external shell commands through a tool call, prefix them with `rtk`, except for PowerShell built-in cmdlets (for example, `rtk git log`, `rtk go test`, but `Get-Content` and `Select-String` do not use `rtk`).
+  - Do not add `rtk` to commands in generated artifacts, including but not limited to code, scripts, documentation, configuration, and user-facing examples, unless explicitly required.
 - Use "fd" instead of "find".
 - Use "rg" (ripgrep) instead of "grep".
 - External commands can fail with permission errors caused by sandbox restrictions. When a permission error appears to be caused by sandbox restrictions, request the required permission instead of immediately looking for an alternative approach; only consider alternative approaches after the permission request is denied.
