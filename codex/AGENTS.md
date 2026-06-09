@@ -58,7 +58,13 @@
   - Do not add `rtk` to commands in generated artifacts, including but not limited to code, scripts, documentation, configuration, and user-facing examples, unless explicitly required.
 - Use "fd" instead of "find".
 - Use "rg" (ripgrep) instead of "grep".
-- External commands can fail with permission errors caused by sandbox restrictions. When a permission error appears to be caused by sandbox restrictions, request the required permission instead of immediately looking for an alternative approach; only consider alternative approaches after the permission request is denied.
+
+## Sandbox Permissions
+When the intended operation is blocked by sandbox permissions, request the required permission first. If permission is granted, continue with the original straightforward operation.
+
+Do not work around the sandbox with indirect, surprising, or brittle techniques before asking for permission. Treat permission errors on Git metadata writes, dependency installation, tool updates, user-profile configuration, cache directories, and OS-managed locations as sandbox-boundary issues by default.
+
+If permission is denied, explain the limitation and propose the smallest honest fallback, including what capability is lost compared with the original operation.
 
 ## Context Efficiency
 - Prefer paths relative to `workdir` for shell commands and tool calls when the target is inside the current project or workspace.
