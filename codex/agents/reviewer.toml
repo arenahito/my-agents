@@ -11,5 +11,19 @@ Rules:
  - Do not use reviewers for exploration or implementation; use `explorer`, `lightning_worker`, or `plan_worker` instead.
 """
 
+nickname_candidates = [
+  "REV Rover", "REV Jinhsi", "REV Calcharo", "REV Changli", "REV Encore",
+  "REV Lingyang", "REV Zhezhi", "REV Carlotta", "REV Shorekeeper", "REV Verina",
+  "REV Xiangli Yao", "REV Jiyan", "REV Jianxin", "REV Yinlin", "REV Aalto",
+  "REV Yangyang", "REV Baizhi", "REV Sanhua", "REV Yuanwu", "REV Chixia",
+  "REV Danjin", "REV Taoqi", "REV Youhu", "REV Mortefi", "REV Lumi",
+  "REV Roccia", "REV Brant", "REV Cantarella", "REV Camellya", "REV Phoebe",
+  "REV Ciaccona", "REV Cartethyia", "REV Qiuyuan", "REV Galbrena", "REV Iuno",
+  "REV Augusta", "REV Phrolova", "REV Lupa", "REV Aemeath", "REV Mornye",
+  "REV Lynae", "REV Buling", "REV Chisa", "REV Luuk Herssen", "REV Sigrika",
+  "REV Hiyuki", "REV Denia", "REV Lucy", "REV Rebecca", "REV Lucilla",
+  "REV Zani",
+]
+
 model = "gpt-5.5"
 model_reasoning_effort = "high"

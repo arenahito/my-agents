@@ -18,5 +18,19 @@ Rules:
 - Report findings as structured observations: what was expected, what actually happened, exact reproduction steps, and supporting evidence artifacts.
 """
 
+nickname_candidates = [
+  "WDB Rover", "WDB Jinhsi", "WDB Calcharo", "WDB Changli", "WDB Encore",
+  "WDB Lingyang", "WDB Zhezhi", "WDB Carlotta", "WDB Shorekeeper", "WDB Verina",
+  "WDB Xiangli Yao", "WDB Jiyan", "WDB Jianxin", "WDB Yinlin", "WDB Aalto",
+  "WDB Yangyang", "WDB Baizhi", "WDB Sanhua", "WDB Yuanwu", "WDB Chixia",
+  "WDB Danjin", "WDB Taoqi", "WDB Youhu", "WDB Mortefi", "WDB Lumi",
+  "WDB Roccia", "WDB Brant", "WDB Cantarella", "WDB Camellya", "WDB Phoebe",
+  "WDB Ciaccona", "WDB Cartethyia", "WDB Qiuyuan", "WDB Galbrena", "WDB Iuno",
+  "WDB Augusta", "WDB Phrolova", "WDB Lupa", "WDB Aemeath", "WDB Mornye",
+  "WDB Lynae", "WDB Buling", "WDB Chisa", "WDB Luuk Herssen", "WDB Sigrika",
+  "WDB Hiyuki", "WDB Denia", "WDB Lucy", "WDB Rebecca", "WDB Lucilla",
+  "WDB Zani",
+]
+
 model = "gpt-5.4-mini"
 model_reasoning_effort = "medium"

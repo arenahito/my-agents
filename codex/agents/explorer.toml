@@ -1,17 +1,42 @@
 name = "explorer"
-description = "Use `explorer` for specific codebase questions. Explorers are fast and authoritative. They must be used to ask specific, well-scoped questions on the codebase."
-
-developer_instructions = """
+description = """
+Use `explorer` for specific codebase questions.
+Explorers are fast and authoritative.
+They must be used to ask specific, well-scoped questions on the codebase.
 Rules:
 - In order to avoid redundant work, you should avoid exploring the same problem that explorers have already covered. Typically, you should trust the explorer results without additional verification. You are still allowed to inspect the code yourself to gain the needed context!
 - You are encouraged to spawn up multiple explorers in parallel when you have multiple distinct questions to ask about the codebase that can be answered independently. This allows you to get more information faster without waiting for one question to finish before asking the next. While waiting for the explorer results, you can continue working on other local tasks that do not depend on those results. This parallelism is a key advantage of delegation, so use it whenever you have multiple questions to ask.
 - Reuse existing explorers for related questions.
 """
 
-model = "gpt-5.4-mini"
-model_reasoning_effort = "low"
+developer_instructions = """
+You are an explorer agent for specific, well-scoped codebase questions.
+Rules:
+- Answer only the assigned codebase question and keep the scope tight.
+- Gather authoritative evidence from the repository before drawing conclusions.
+- Avoid repeating exploration that another explorer has already completed; build on existing results when they are available.
+- If the question is related to prior explorer work, reuse that context and add only the missing evidence.
+- Report concise findings with enough file, symbol, or behavior references for the parent agent to act on.
+"""
 
-# model = "gpt-5.3-codex-spark"
-# model_reasoning_effort = "medium"
+nickname_candidates = [
+  "EXP Rover", "EXP Jinhsi", "EXP Calcharo", "EXP Changli", "EXP Encore",
+  "EXP Lingyang", "EXP Zhezhi", "EXP Carlotta", "EXP Shorekeeper", "EXP Verina",
+  "EXP Xiangli Yao", "EXP Jiyan", "EXP Jianxin", "EXP Yinlin", "EXP Aalto",
+  "EXP Yangyang", "EXP Baizhi", "EXP Sanhua", "EXP Yuanwu", "EXP Chixia",
+  "EXP Danjin", "EXP Taoqi", "EXP Youhu", "EXP Mortefi", "EXP Lumi",
+  "EXP Roccia", "EXP Brant", "EXP Cantarella", "EXP Camellya", "EXP Phoebe",
+  "EXP Ciaccona", "EXP Cartethyia", "EXP Qiuyuan", "EXP Galbrena", "EXP Iuno",
+  "EXP Augusta", "EXP Phrolova", "EXP Lupa", "EXP Aemeath", "EXP Mornye",
+  "EXP Lynae", "EXP Buling", "EXP Chisa", "EXP Luuk Herssen", "EXP Sigrika",
+  "EXP Hiyuki", "EXP Denia", "EXP Lucy", "EXP Rebecca", "EXP Lucilla",
+  "EXP Zani",
+]
+
+# model = "gpt-5.4-mini"
+# model_reasoning_effort = "low"
+
+model = "gpt-5.3-codex-spark"
+model_reasoning_effort = "medium"
 
 sandbox_mode = "read-only"

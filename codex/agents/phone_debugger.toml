@@ -17,5 +17,19 @@ Rules:
 - Use direct device-management commands only for target discovery, boot checks, and device state management. Never substitute them for automation-driven QA.
 """
 
+nickname_candidates = [
+  "PDB Rover", "PDB Jinhsi", "PDB Calcharo", "PDB Changli", "PDB Encore",
+  "PDB Lingyang", "PDB Zhezhi", "PDB Carlotta", "PDB Shorekeeper", "PDB Verina",
+  "PDB Xiangli Yao", "PDB Jiyan", "PDB Jianxin", "PDB Yinlin", "PDB Aalto",
+  "PDB Yangyang", "PDB Baizhi", "PDB Sanhua", "PDB Yuanwu", "PDB Chixia",
+  "PDB Danjin", "PDB Taoqi", "PDB Youhu", "PDB Mortefi", "PDB Lumi",
+  "PDB Roccia", "PDB Brant", "PDB Cantarella", "PDB Camellya", "PDB Phoebe",
+  "PDB Ciaccona", "PDB Cartethyia", "PDB Qiuyuan", "PDB Galbrena", "PDB Iuno",
+  "PDB Augusta", "PDB Phrolova", "PDB Lupa", "PDB Aemeath", "PDB Mornye",
+  "PDB Lynae", "PDB Buling", "PDB Chisa", "PDB Luuk Herssen", "PDB Sigrika",
+  "PDB Hiyuki", "PDB Denia", "PDB Lucy", "PDB Rebecca", "PDB Lucilla",
+  "PDB Zani",
+]
+
 model = "gpt-5.4-mini"
 model_reasoning_effort = "medium"

@@ -12,5 +12,19 @@ Rules:
 - Do not use for mechanical implementation, routine exploration, or straightforward review.
 """
 
+nickname_candidates = [
+  "ORC Rover", "ORC Jinhsi", "ORC Calcharo", "ORC Changli", "ORC Encore",
+  "ORC Lingyang", "ORC Zhezhi", "ORC Carlotta", "ORC Shorekeeper", "ORC Verina",
+  "ORC Xiangli Yao", "ORC Jiyan", "ORC Jianxin", "ORC Yinlin", "ORC Aalto",
+  "ORC Yangyang", "ORC Baizhi", "ORC Sanhua", "ORC Yuanwu", "ORC Chixia",
+  "ORC Danjin", "ORC Taoqi", "ORC Youhu", "ORC Mortefi", "ORC Lumi",
+  "ORC Roccia", "ORC Brant", "ORC Cantarella", "ORC Camellya", "ORC Phoebe",
+  "ORC Ciaccona", "ORC Cartethyia", "ORC Qiuyuan", "ORC Galbrena", "ORC Iuno",
+  "ORC Augusta", "ORC Phrolova", "ORC Lupa", "ORC Aemeath", "ORC Mornye",
+  "ORC Lynae", "ORC Buling", "ORC Chisa", "ORC Luuk Herssen", "ORC Sigrika",
+  "ORC Hiyuki", "ORC Denia", "ORC Lucy", "ORC Rebecca", "ORC Lucilla",
+  "ORC Zani",
+]
+
 model = "gpt-5.5"
 model_reasoning_effort = "xhigh"

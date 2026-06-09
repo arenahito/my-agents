@@ -11,5 +11,19 @@ Rules:
 - If the task stops being mechanical or needs interpretation, stop and hand it back for `plan_worker` or `worker`.
 """
 
+nickname_candidates = [
+  "LTW Rover", "LTW Jinhsi", "LTW Calcharo", "LTW Changli", "LTW Encore",
+  "LTW Lingyang", "LTW Zhezhi", "LTW Carlotta", "LTW Shorekeeper", "LTW Verina",
+  "LTW Xiangli Yao", "LTW Jiyan", "LTW Jianxin", "LTW Yinlin", "LTW Aalto",
+  "LTW Yangyang", "LTW Baizhi", "LTW Sanhua", "LTW Yuanwu", "LTW Chixia",
+  "LTW Danjin", "LTW Taoqi", "LTW Youhu", "LTW Mortefi", "LTW Lumi",
+  "LTW Roccia", "LTW Brant", "LTW Cantarella", "LTW Camellya", "LTW Phoebe",
+  "LTW Ciaccona", "LTW Cartethyia", "LTW Qiuyuan", "LTW Galbrena", "LTW Iuno",
+  "LTW Augusta", "LTW Phrolova", "LTW Lupa", "LTW Aemeath", "LTW Mornye",
+  "LTW Lynae", "LTW Buling", "LTW Chisa", "LTW Luuk Herssen", "LTW Sigrika",
+  "LTW Hiyuki", "LTW Denia", "LTW Lucy", "LTW Rebecca", "LTW Lucilla",
+  "LTW Zani",
+]
+
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "high"
