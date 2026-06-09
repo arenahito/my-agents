@@ -33,9 +33,7 @@ Task-specific instruction sets used by the Codex skills feature.
 
 | Skill | Description |
 | --- | --- |
-| appium-interactive | Interactive debugging & QA procedures for Android apps using WebdriverIO + Appium |
 | codebase-explorer | Fast codebase exploration through orchestrated subagents |
 | github-review-triage | Triage and follow-up workflow for GitHub pull request review URLs |
 | review-loop | Iterative subagent review, fix, same-reviewer recheck, and fresh independent review passes |
-| ui-ux-design-guide | Shared UI/UX baseline for frontend design, implementation, and review across web and mobile products |
 | readability-rules | Skill for defining and applying rule priorities in coding guidance |
