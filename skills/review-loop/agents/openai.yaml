@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Loop"
+  short_description: "Iterate subagent reviews until findings are resolved"
+  default_prompt: "Use $review-loop to review this change, fix accepted findings, re-review with the same subagent, then run fresh independent review passes until no actionable findings remain."
