@@ -18,6 +18,13 @@
 - For mobile debugging tasks, delegate to `phone_debugger`.
 - For web debugging tasks, delegate to `web_debugger`.
 
+## Tool Discovery
+When an instruction, skill, plugin, or workflow requires a capability that is not currently visible in the available tools, do not assume it is unavailable. Use the available tool-discovery mechanism once before falling back.
+
+This applies equally when the capability is implied by a skill or standing instruction, even if the user did not explicitly name the tool.
+
+If discovery does not expose a suitable tool, state the blocker explicitly and continue with the smallest honest fallback.
+
 ### Subagent Delegation
 - When a skill's instructions call for subagent delegation (e.g., orchestrator patterns, parallel exploration), subagent usage is required, not merely permitted. Treat the skill instruction as explicit user authorization for the specified delegation, and follow the skill's workflow without requiring additional user confirmation.
 - Do not skip skill-directed delegation just because the user did not separately ask for subagents. Treat these AGENTS instructions as the user's standing explicit authorization for skill-directed subagent use. If the required subagent tool is unavailable or the requested subagent type does not exist, state that blocker explicitly and continue with the best compliant fallback.
