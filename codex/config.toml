@@ -43,8 +43,7 @@ status_line = ["git-branch", "context-remaining", "five-hour-limit", "weekly-lim
 theme = "monokai-extended"
 
 [mcp_servers.context7]
-url = "https://mcp.context7.com/mcp"
-env_http_headers = { "CONTEXT7_API_KEY" = "CONTEXT7_API_KEY" }
+url = "https://mcp.context7.com/mcp/oauth"
 
 # [mcp_servers.deepwiki]
 # url = "https://mcp.deepwiki.com/mcp"
