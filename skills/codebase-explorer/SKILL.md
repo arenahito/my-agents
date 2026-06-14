@@ -1,15 +1,47 @@
 ---
 name: codebase-explorer
-description: Delegate codebase exploration to fast, low-cost subagents so the parent agent avoids context bloat. Use when Codex needs to map repository structure, find entry points, locate a feature or bug, trace symbols/APIs/data flow, inspect config/log/build/test/runtime surfaces, or answer broad "where is X?" and "how does Y work?" questions. The parent performs only lightweight triage, split design, subagent reuse decisions, and final synthesis.
+description: >-
+  Use for fresh repository evidence gathering before implementation, debugging,
+  review, or explanation when the parent agent cannot answer confidently from
+  current context. Delegate specific, well-scoped codebase questions to fast,
+  low-cost explorer subagents: mapping structure, finding entry points,
+  locating a feature or bug, tracing symbols/APIs/data flow, inspecting
+  config/log/build/test/runtime surfaces, or answering "where is X?" and
+  "how does Y work?" questions. Do not use when existing task-local evidence is
+  enough, when only one already-known file needs a quick read, or when the task
+  is pure editing with no new codebase discovery needed.
 ---
 
 # Codebase Explorer
 
 ## Purpose
 
-Use this skill to keep broad codebase exploration out of the parent agent's context. The parent should understand the user's intent, design the smallest useful exploration task, delegate fresh exploration to codebase exploration subagents, and synthesize their findings.
+Use this skill to keep fresh repository evidence gathering out of the parent agent's context. The parent should understand the user's intent, design the smallest useful exploration task, delegate specific codebase questions to explorer subagents, and synthesize their findings.
 
 Do not turn this skill into a full repository-reading workflow. Its job is routing and synthesis, not local exploration.
+
+## When To Use
+
+Use this skill when progress depends on fresh evidence from the repository and the parent agent does not already know the relevant files, symbols, behavior, or project surfaces.
+
+Common cases include:
+
+- finding where something lives or how it is wired
+- understanding an unfamiliar area before implementation, debugging, review, or explanation
+- tracing behavior across more than one file, module, layer, or project artifact
+- identifying the relevant code, tests, configuration, commands, logs, docs, or runtime surfaces
+
+Default to one explorer for fresh evidence gathering, even when the question is narrow. Use multiple explorers only for independent, non-overlapping questions.
+
+## When Not To Use
+
+Do not use this skill when:
+
+- existing conversation context, recent command output, or prior subagent results already answer the question
+- the parent only needs to read or edit one already-known file to proceed safely
+- the task is a small mechanical edit, formatting pass, or direct command execution with no repository discovery
+- the user explicitly asks not to delegate or wants the parent to inspect something directly
+- the work is implementation rather than exploration and the affected files are already known
 
 ## Parent Triage
 
