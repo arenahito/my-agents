@@ -24,7 +24,7 @@
 - Prefix external shell commands with `rtk`; do not prefix PowerShell built-in cmdlets. Never add `rtk` to generated code, scripts, documentation, configuration, or user-facing command examples unless explicitly required.
 - Use `rg` instead of `grep` and `fd` instead of `find`. In PowerShell, wrap file and directory paths in double quotes.
 - When a required capability is not visible, use tool discovery once before falling back. If unavailable, state the limitation and use the smallest honest alternative.
-- When available, use Context7 for library/API documentation and setup, prefer Exa for web search, and use `gh_grep` for unfamiliar implementation examples.
+- When available, use Context7 for library/API documentation and setup, and prefer Exa for web search.
 - Treat permission failures as sandbox boundaries: request the required permission before attempting an indirect workaround.
 
 ## Code and Review

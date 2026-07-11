@@ -15,19 +15,13 @@ approvals_reviewer = "user"
 [features]
 unified_exec = true
 shell_snapshot = true
-powershell_utf8 = true
-collaboration_modes = true
 apps = true
 personality = true
 multi_agent = true
-responses_websockets_v2 = true
 prevent_idle_sleep = true
-voice_transcription = true
 memories = true
-js_repl = true
 default_mode_request_user_input = true
 hooks = true
-tool_search = true
 guardian_approval = true
 image_generation = true
 chronicle = false
@@ -42,20 +36,20 @@ notifications = [ "agent-turn-complete", "approval-requested" ]
 status_line = ["git-branch", "context-remaining", "five-hour-limit", "weekly-limit"]
 theme = "monokai-extended"
 
-[mcp_servers.context7]
-url = "https://mcp.context7.com/mcp/oauth"
+# [mcp_servers.context7]
+# url = "https://mcp.context7.com/mcp/oauth"
 
 # [mcp_servers.deepwiki]
 # url = "https://mcp.deepwiki.com/mcp"
 # startup_timeout_sec = 60.0
 
-[mcp_servers.exa]
-url = "https://mcp.exa.ai/mcp"
-startup_timeout_sec = 60.0
+# [mcp_servers.exa]
+# url = "https://mcp.exa.ai/mcp"
+# startup_timeout_sec = 60.0
 
-[mcp_servers.gh_grep]
-url = "https://mcp.grep.app"
-startup_timeout_sec = 60.0
+# [mcp_servers.gh_grep]
+# url = "https://mcp.grep.app"
+# startup_timeout_sec = 60.0
 
 # [mcp_servers.chrome-devtools]
 # command = "npx"
@@ -63,12 +57,7 @@ startup_timeout_sec = 60.0
 # startup_timeout_sec = 60.0
 
 [notice]
-hide_world_writable_warning = true
-hide_gpt5_1_migration_prompt = true
-"hide_gpt-5.1-codex-max_migration_prompt" = true
-
-[notice.model_migrations]
-"gpt-5.2" = "gpt-5.2-codex"
+fast_default_opt_out = true
 
 [agents]
 max_threads = 12
@@ -94,16 +83,16 @@ enabled = true
 enabled = true
 
 [plugins."canva@openai-curated"]
-enabled = true
+enabled = false
 
 [plugins."hyperframes@openai-curated"]
 enabled = true
 
 [plugins."openai-developers@openai-curated"]
-enabled = true
+enabled = false
 
 [plugins."notion@openai-curated"]
-enabled = true
+enabled = false
 
 [plugins."documents@openai-primary-runtime"]
 enabled = true
@@ -114,11 +103,77 @@ enabled = true
 [plugins."presentations@openai-primary-runtime"]
 enabled = true
 
-[plugins."browser@openai-bundled"]
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."build-web-data-visualization@openai-curated"]
+enabled = false
+
+[plugins."linear@openai-curated"]
+enabled = true
+
+[plugins."wt-agent-hooks@wt-local"]
+enabled = false
+
+[plugins."slack@openai-curated"]
+enabled = true
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
 enabled = true
 
 [plugins."chrome@openai-bundled"]
 enabled = true
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[apps.connector_68df33b1a2d081918778431a9cfca8ba]
+enabled = false
+
+[apps.connector_69312da8e4dc81919370cb86fd172b6c]
+enabled = false
+
+[apps.connector_68df038e0ba48191908c8434991bbac2]
+enabled = false
+
+[apps.connector_2128aebfecb84f64a069897515042a44]
+enabled = false
+
+[apps.asdk_app_69c18c28f1188191bf5b8445c4ab0a2e]
+enabled = false
+
+[apps.connector_4aaab2856305417b993eca9a216aaf6e]
+enabled = false
+
+[apps.asdk_app_69a1d78e929881919bba0dbda1f6436d]
+enabled = true
+
+[apps.connector_2de447f3f15448ebab48783d7e4f5d81]
+enabled = false
+
+[apps.asdk_app_69d707a3ef44819185b10b3a43999244]
+enabled = false
+
+[apps.asdk_app_69941d065a348191ad84cbb98d8469ec]
+enabled = false
+
+[apps.connector_947e0d954944416db111db556030eea6]
+enabled = false
+
+[apps.asdk_app_69c3322462288191a4b198f3ff39db2c]
+enabled = false
 
 [desktop]
 ambient-suggestions-enabled = false
@@ -127,13 +182,29 @@ sansFontSize = 13
 codeFontSize = 12
 dictationDictionary = []
 localeOverride = "en-US"
-notifications-turn-mode = "off"
-notifications-permissions-enabled = false
-notifications-questions-enabled = false
+notifications-turn-mode = "unfocused"
+notifications-permissions-enabled = true
+notifications-questions-enabled = true
 selected-avatar-id = "custom:chisa-pon"
 conversationDetailMode = "STEPS_COMMANDS"
 appearanceDiffMarkerStyle = "color"
 usePointerCursors = true
+keepRemoteControlAwakeWhilePluggedIn = true
+show-context-window-usage = true
+hotkey-window-projectless-default-enabled = true
+git-show-sidebar-pr-icons = false
+git-commit-instructions = """
+- If the repository defines its own commit conventions, follow those first.
+- Otherwise:
+  - Write commit messages following [Conventional Commits](https://www.conventionalcommits.org/).
+  - Write commit messages in the language specified by the repository. If not explicitly specified, use the language of the README. If there is no README or the language cannot be inferred, use English."""
+runCodexInWindowsSubsystemForLinux = false
+followUpQueueMode = "queue"
+avatar-overlay-mascot-width-px = 103
+microphoneInputDeviceId = "fc1032a84c281deaecabddf605b367f9beca50bba22015d814e0a2a3b2a89cb2"
+composerEnterBehavior = "cmdAlways"
+reduced-motion-preference = "system"
+enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "max"]
 
 [desktop.appearanceDarkChromeTheme]
 accent = "#606acc"
