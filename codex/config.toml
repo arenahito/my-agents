@@ -27,6 +27,10 @@ image_generation = true
 chronicle = false
 goals = true
 
+[features.multi_agent_v2]
+hide_spawn_agent_metadata = false
+tool_namespace = "agents"
+
 [sandbox_workspace_write]
 writable_roots = []
 network_access = true
