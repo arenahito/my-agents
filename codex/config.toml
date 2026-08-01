@@ -27,10 +27,6 @@ image_generation = true
 chronicle = false
 goals = true
 
-[features.multi_agent_v2]
-hide_spawn_agent_metadata = false
-tool_namespace = "agents"
-
 [sandbox_workspace_write]
 writable_roots = []
 network_access = true
@@ -39,26 +35,6 @@ network_access = true
 notifications = [ "agent-turn-complete", "approval-requested" ]
 status_line = ["git-branch", "context-remaining", "five-hour-limit", "weekly-limit"]
 theme = "monokai-extended"
-
-# [mcp_servers.context7]
-# url = "https://mcp.context7.com/mcp/oauth"
-
-# [mcp_servers.deepwiki]
-# url = "https://mcp.deepwiki.com/mcp"
-# startup_timeout_sec = 60.0
-
-# [mcp_servers.exa]
-# url = "https://mcp.exa.ai/mcp"
-# startup_timeout_sec = 60.0
-
-# [mcp_servers.gh_grep]
-# url = "https://mcp.grep.app"
-# startup_timeout_sec = 60.0
-
-# [mcp_servers.chrome-devtools]
-# command = "npx"
-# args = ["chrome-devtools-mcp@latest"]
-# startup_timeout_sec = 60.0
 
 [notice]
 fast_default_opt_out = true
@@ -73,8 +49,6 @@ sandbox = "elevated"
 [memories]
 generate_memories = true
 use_memories = true
-max_raw_memories_for_consolidation = 128
-max_unused_days = 14
 disable_on_external_context = true
 
 [plugins."build-web-apps@openai-curated"]
