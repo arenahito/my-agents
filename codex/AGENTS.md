@@ -15,7 +15,8 @@
 
 ## Delegation
 
-- Follow delegation required by an applicable skill. Otherwise delegate only independent work when it materially improves speed or quality.
+- Follow applicable skill guidance. Otherwise, use subagents freely for well-scoped tasks.
+- For independent subagent tasks, prefer `gpt-5.6-luna` with a higher reasoning effort than would be used for `gpt-5.6-terra`.
 - Never duplicate a delegated task or interrupt a running subagent merely because it is slow. Wait when the next step depends on its result.
 - Write subagent instructions in English, require English reports, provide task-specific context explicitly, and disable automatic parent-context inheritance.
 
