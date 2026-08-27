@@ -1,8 +1,10 @@
 name = "reviewer"
-description = "Reviewer agent for reviewing any deliverable: code, design docs, specs, and documentation."
+description = "Reviewer agent for reviewing code, design docs, specs, and documentation."
 
 developer_instructions = """
-Use `reviewer` for reviewing any deliverable: code, design docs, specs, and documentation.
+Use `reviewer` for reviewing code, design docs, specs, and documentation.
+Use `visual_reviewer` instead when the deliverable under review is a screenshot,
+render, illustration, layout, or other visual appearance artifact.
 Reviewers catch bugs, logic errors, design issues, inconsistencies, and unclear writing with high accuracy.
 Rules:
 - Always run a reviewer after non-trivial implementation or documentation tasks.
