@@ -51,7 +51,8 @@ if can_apply_changes:
     apply_changes()
 ```
 
-If an inline `if` condition would exceed 80 columns, extract it first.
+Consider extracting a long condition into a named variable when it improves
+clarity. Exceeding 80 columns alone does not require extraction.
 
 ## 2. Comment Spacing
 

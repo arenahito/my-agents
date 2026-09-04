@@ -17,7 +17,7 @@ Treat `references/readability.md` as the source of priority definitions and
 2. Check language-specific rules second.
 3. Use this skill only when higher-priority rules do not define the case.
 4. Apply fallback preference rules from `references/preferences.md`.
-5. State which priority level each decision comes from.
+5. Explain the applied priority only when rules conflict.
 
 ## Application Policy
 
@@ -27,7 +27,7 @@ Treat `references/readability.md` as the source of priority definitions and
 
 ## Output Rules
 
-- In change proposals and reviews, explicitly mention the applied priority level.
+- Do not routinely narrate rule priority in change proposals or reviews.
 - If multiple rules conflict, explain which higher-priority rule won.
 
 ## Reference

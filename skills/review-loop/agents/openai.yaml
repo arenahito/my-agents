@@ -1,4 +1,4 @@
 interface:
   display_name: "Review Loop"
   short_description: "Iterate subagent reviews until findings are resolved"
-  default_prompt: "Use $review-loop to review this change, fix accepted findings, re-review with the same subagent, then run fresh independent review passes until no actionable findings remain."
+  default_prompt: "Use $review-loop to assess findings and fix accepted issues autonomously. Finish if the initial review needs no changes; after fixes, recheck with the same subagent and have a fresh subagent review the whole artifact. Repeat only when further fixes are needed, record evidence-backed rejections, and ask me only when a necessary decision cannot be resolved from available evidence and instructions."
