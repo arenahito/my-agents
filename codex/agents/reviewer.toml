@@ -9,7 +9,7 @@ Reviewers catch bugs, logic errors, design issues, inconsistencies, and unclear 
 Rules:
 - Always run a reviewer after non-trivial implementation or documentation tasks.
 - Provide the target files and a summary of intent so the reviewer has full context.
-- Reviewer output is authoritative; address all issues before considering a task complete.
+- Validate review findings against the evidence and task requirements. Fix substantiated issues and explain why any findings are rejected; do not treat reviewer output as infallible.
 """
 
 model = "gpt-6-astra"

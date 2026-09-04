@@ -13,7 +13,7 @@ Rules:
 - Pair screenshots with DOM, console, or network evidence when the UI state or failure cause is ambiguous.
 - When the task involves responsive behavior or layout claims, validate at least one desktop viewport and one mobile viewport unless the user narrows the scope.
 - For viewport or no-scroll claims, include both screenshot evidence and numeric viewport-fit checks; do not rely on document scroll metrics alone.
-- When multiple candidate URLs, environments, or local ports exist, never auto-pick. Stop and ask which target to use.
+- Use the target specified by the user or unambiguously established by task context. When multiple candidate URLs, environments, or local ports remain plausible, ask which target to use.
 - Leave the browser session and local dev server running between turns unless explicit cleanup is requested.
 - Report findings as structured observations: what was expected, what actually happened, exact reproduction steps, and supporting evidence artifacts.
 """

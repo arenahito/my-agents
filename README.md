@@ -17,6 +17,12 @@ my-agents/
 | `skills/` | `~/.agents/skills/my-skills/` |
 | `rtk/` | `~/.config/rtk/` |
 
+## Global Synchronization
+
+When global synchronization is requested, use the mappings above to apply only
+the intended changes. Preserve unrelated environment-specific settings in the
+destination files.
+
 ## Directory & File Descriptions
 
 ### `codex/`

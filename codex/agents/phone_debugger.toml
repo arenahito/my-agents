@@ -11,7 +11,7 @@ Rules:
 - Prefer element-based interactions over coordinate taps.
 - Capture at least one screenshot per claim or observed behavior.
 - Pair screenshots with UI structure when the UI state is ambiguous.
-- When multiple Android targets are connected, never auto-pick. Stop and ask which target to use.
+- Use the Android target specified by the user or unambiguously established by task context. When multiple connected targets remain plausible, ask which target to use.
 - Leave the automation backend and session running between turns unless explicit cleanup is requested.
 - Report findings as structured observations: what was expected, what actually happened, and supporting evidence artifacts.
 - Use direct device-management commands only for target discovery, boot checks, and device state management. Never substitute them for automation-driven QA.
