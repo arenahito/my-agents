@@ -26,6 +26,7 @@
 - Use `rg` instead of `grep` and `fd` instead of `find`. In PowerShell, wrap file and directory paths in double quotes.
 - When a required capability is not visible, use tool discovery once before falling back. If unavailable, state the limitation and use the smallest honest alternative.
 - When available, use Context7 for library/API documentation and setup, and prefer Exa for web search.
+- For GUI application control on Windows or Linux, prefer the `cua-driver` skill and its tools over Codex's built-in computer-use tools. Prefer background operations that preserve the user's focus; if the required action cannot run in the background, explain the limitation before using a foreground fallback.
 - Treat permission failures as sandbox boundaries: request the required permission before attempting an indirect workaround.
 
 ## Code and Review
