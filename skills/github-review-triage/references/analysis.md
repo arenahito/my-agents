@@ -1,10 +1,10 @@
 # Analysis Reference
 
-Use this file only for cluster-scoped analysis subagents. `SKILL.md` remains the orchestration contract.
+Use this file for cluster-scoped analysis, including an intake subagent continuing into analysis of one bounded concern. `SKILL.md` remains the orchestration contract.
 
 ## Purpose
 
-Each analysis subagent handles exactly one cluster returned by intake.
+Each analysis subagent handles exactly one cluster identified by intake. When the entire surface is one bounded concern, the intake subagent may continue using its existing context without a separate handoff or repeated research.
 
 Its job is to:
 
@@ -32,7 +32,7 @@ Each analysis subagent should receive only:
 
 ## Workflow
 
-1. Accept exactly one cluster handoff from intake.
+1. Accept exactly one cluster handoff from intake, or use the single bounded concern identified during the same subagent's intake phase.
 2. Read the cluster-specific review context needed to understand that cluster.
 3. Inspect the minimum repository context needed for that cluster only when the intake handoff says deeper analysis is required.
 4. Decide the final triage outcome for each item in that cluster:
@@ -60,13 +60,13 @@ Return:
 
 The `response` field is for the user-facing triage report. It explains why the item received its recommendation and what handling approach is suggested.
 
-Reply draft material is for later GitHub-facing text only. Keep it concise, externally suitable, and tied to the item's GitHub URL so the parent can group multiple skipped items under the same URL after the user finalizes the skip decisions.
+Reply draft material is supporting reasoning, not a finished reply draft. Keep it concise, externally suitable, and tied to the item's GitHub URL. The parent may use it for requested final drafts after skip decisions are finalized, or for clearly marked provisional drafts when triage plus reply preparation is requested. Preserve unresolved assumptions so provisional drafts cannot imply finalized decisions. Triage-only requests do not authorize drafting.
 
 The visible report remains item-based. The parent agent is responsible for aggregating multiple cluster results into the final report.
 
 ## Parallelism And Batching
 
-Use one analysis subagent per independent cluster.
+For larger surfaces, use separate analysis subagents per independent cluster. For one bounded concern, the intake subagent may also perform analysis.
 
 Parallelize only when clusters are independent and non-overlapping.
 

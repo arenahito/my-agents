@@ -4,7 +4,7 @@ Use this file only for the intake subagent phase. `SKILL.md` remains the orchest
 
 ## Purpose
 
-The intake subagent handles only the first-pass review intake.
+The intake phase handles first-pass review intake. For one bounded concern, the same capable subagent may then continue under `references/analysis.md`; for a larger surface, it returns a handoff for separate analysis subagents.
 
 Its job is to:
 
@@ -13,7 +13,7 @@ Its job is to:
 - cluster related issues into the smallest useful buckets
 - return cluster handoff material to the parent agent
 
-Its job is not to:
+During intake, its job is not to:
 
 - decide final recommendation labels
 - perform full cluster-level analysis
@@ -37,7 +37,7 @@ Its job is not to:
    - shared behavior or failure mode
    - shared implementation strategy
    - shared test surface
-6. Return cluster handoff material and stop.
+6. For one bounded concern, either continue into analysis under `references/analysis.md` or return the handoff. For larger surfaces, return cluster handoff material and stop.
 
 If the linked discussion contains many distinct concerns, stop at clustering and hand the clusters back to the orchestrator instead of continuing deeper analysis.
 
@@ -71,7 +71,7 @@ Use one intake subagent per incoming URL as the default entry point. If that URL
 
 ## Guardrails
 
-- Do not decide final recommendation labels.
+- Decide final recommendation labels only after entering the analysis phase for one bounded concern; otherwise leave them to separate analysis subagents.
 - Do not perform implementation follow-up decisions.
 - Do not expand into unrelated repository-wide exploration.
 - Do not keep long review bodies in the handoff when a concise summary is enough.

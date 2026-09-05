@@ -16,7 +16,7 @@
 
 ## Delegation
 
-- Follow applicable skill guidance. Otherwise, use subagents freely for well-scoped tasks.
+- Follow applicable skill guidance; explicit user instructions take precedence over skill guidelines, subject to higher-priority instructions. Otherwise, use subagents freely for well-scoped tasks.
 - Never duplicate a delegated task or interrupt a running subagent merely because it is slow. Wait when the next step depends on its result.
 - Write subagent instructions in English, require English reports, provide task-specific context explicitly, and disable automatic parent-context inheritance.
 
@@ -31,8 +31,10 @@
 
 ## Code and Review
 
+- After implementation or documentation changes that affect behavior, interfaces, or workflow rules, use `reviewer` for code and documents and `visual_reviewer` for visual appearance artifacts. Provide the target files, intended outcome, and scope. Validate findings against evidence and task requirements; fix substantiated issues within scope and explain rejected findings.
 - During code review, do not routinely rerun linting, formatting, type-checking, or tests. Focus on design, logic, readability, and correctness; use a targeted reproduction only when needed to resolve a concrete suspected defect.
 - For implementation, run checks appropriate to the change and complete required checks. After they pass, broaden or repeat verification only for new changes, failures, or unresolved concerns.
+- Add tests when they detect plausible regressions; avoid tests that merely restate the changed implementation, configuration, or metadata.
 - Do not add self-explanatory comments or comments that narrate the work performed.
 - Follow repository-specific commit conventions first. Otherwise use Conventional Commits in the repository's documented language, then README language, then English.
 - A commit request authorizes a local SSH-signed commit; push requires a separate explicit request. If signing fails, report the failure rather than creating an unsigned commit.

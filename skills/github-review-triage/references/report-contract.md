@@ -10,7 +10,7 @@ The report must contain:
 - items
 - recommended next step
 
-After the user finalizes which items do not need implementation, reply-draft mode must contain:
+When the user requests reply preparation, reply-draft mode must contain:
 
 - reply drafts grouped by GitHub URL
 - one draft body per URL
@@ -41,7 +41,7 @@ The `response` field is written for the user. It is not the same thing as a GitH
 
 ## Reply Draft Fields
 
-Generate reply drafts only after the user finalizes which items do not need implementation, unless the user explicitly asks for provisional drafts.
+Generate final reply drafts after the user finalizes which items do not need implementation. If the user requests triage plus reply preparation, provisional drafts for proposed skipped or non-implementation items may accompany triage without a separate explicit request for provisional drafts. Explicit requests for provisional drafts also permit them. Triage-only requests do not authorize drafting.
 
 Each reply draft entry contains:
 
@@ -51,7 +51,8 @@ Each reply draft entry contains:
 Each entry should follow these rules:
 
 - URL: render the GitHub review comment or discussion URL as a markdown link without a `Comment URL:` label. Prefer `[<url>](<url>)`.
-- reply: write the text intended for GitHub. It should explain why the finalized skipped item does not need implementation. Keep it respectful, specific, and concise.
+- reply: write the text intended for GitHub. Explain why implementation is not needed, using conditional wording for an unfinalized skip decision. Keep it respectful, specific, and concise.
+- label every unfinalized draft as provisional and identify unresolved assumptions alongside it; do not imply that the user has finalized a skip decision
 - group by GitHub URL, not by triage item
 - when multiple skipped items map to one GitHub URL, combine them into one coherent reply instead of producing multiple entries for the same URL
 - do not post reply drafts to GitHub during draft generation
@@ -150,3 +151,5 @@ Use this output shape after the user finalizes skipped items and asks for reply 
 | URL | [`<url>`](<url>) |
 | Reply | <GitHub-facing reply text explaining why implementation is not needed> |
 ```
+
+For authorized provisional drafts, label the heading `Provisional Reply Drafts` and add an `Unresolved assumptions` row to each entry, stating any pending decision or missing evidence. Drafting does not authorize implementation or posting.

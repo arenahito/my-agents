@@ -7,7 +7,7 @@ description: Handle GitHub pull request, review, and review comment URLs when th
 
 Use this skill when the user gives a GitHub URL that points to a pull request or review discussion and wants help deciding what to do next.
 
-This skill keeps the parent agent small. Large review threads, PR context, and surrounding code must flow through staged subagents. The parent agent must not perform review intake or cluster-level analysis itself.
+This skill keeps the parent agent small. Review threads, PR context, and surrounding code flow through subagents. One capable subagent may handle intake and analysis for one bounded concern; larger surfaces use separate cluster analysis subagents. The parent agent must not perform review intake or cluster-level analysis itself.
 
 ## Supported URLs
 
@@ -23,8 +23,8 @@ If the URL is not clearly one of the above, stop and say that the skill only han
 Keep `SKILL.md` as the contract and navigation layer. Read additional files only when the current phase needs them.
 
 - At skill start, read only `SKILL.md`.
-- When you launch the intake subagent, read `references/intake.md`.
-- When intake returns clusters and you launch analysis subagents, read `references/analysis.md`.
+- When you launch the intake subagent, read `references/intake.md` and include `references/analysis.md` if it may continue into analysis of one bounded concern.
+- When intake returns multiple clusters and you launch analysis subagents, read `references/analysis.md`.
 - When the parent agent assembles the final user-facing report, read `references/report-contract.md`.
 
 ## Startup Gate
@@ -45,10 +45,10 @@ For every supported GitHub review URL, the parent agent may do only these steps 
    - repository or workspace path if known
    - nitpick policy
    - triage state, including whether final triage is already complete
-   - whether the user is asking for initial triage, reply drafts for finalized skipped items, or implementation follow-up
+   - whether the user is asking for triage only, triage plus reply preparation, reply drafts for finalized skipped items, or implementation follow-up
    - required output contract
 4. Launch exactly one intake subagent with no automatic parent-context inheritance.
-5. After intake returns clusters, launch analysis subagents for independent clusters only.
+5. For one bounded concern, let the intake subagent continue into analysis under the analysis contract. For larger surfaces, use its handoff to launch separate analysis subagents for independent clusters.
 
 Until the intake subagent is launched, the parent agent must not fetch the review surface, read comment bodies, inspect repository code, or draft recommendation items.
 
@@ -70,8 +70,8 @@ For this skill, review triage uses one fixed capability floor across both intake
 
 | Role | Responsibility |
 |---|---|
-| Parent agent | Triage the request shape, launch staged subagents, aggregate results, render the final report |
-| Intake subagent | Resolve the review surface, extract issues, cluster them, return cluster handoff material |
+| Parent agent | Triage the request shape, route subagents, aggregate results, render the final report |
+| Intake subagent | Resolve the review surface, extract issues, cluster them; analyze one bounded concern or return cluster handoff material |
 | Analysis subagent | Analyze one cluster, inspect minimum needed repo context, decide item-level triage labels |
 | Implementation subagent | Make changes only after triage is complete and only for selected clusters |
 | Reviewer subagent | Review implementation results with minimal changed-file context |
@@ -81,12 +81,12 @@ For this skill, review triage uses one fixed capability floor across both intake
 Use this sequence for review triage:
 
 1. Launch exactly one minimal-context intake subagent for the incoming URL.
-2. Close the intake subagent after it returns cluster handoff material.
-3. Launch zero or more cluster-scoped analysis subagents from that intake result.
+2. If intake identifies one bounded concern, the same subagent may continue into analysis and return the analysis output contract without a second intake pass.
+3. If intake identifies a larger surface with distinct concerns, close it after it returns cluster handoff material and launch separate cluster-scoped analysis subagents, parallelizing independent clusters.
 4. Aggregate the analysis results into the final user-facing recommendation report.
 5. Launch implementation or reviewer subagents only after analysis results exist and the user wants follow-up work.
 
-Do not reuse the intake subagent for analysis or implementation.
+Do not reuse the intake subagent for implementation. Its analysis reuse is limited to one bounded concern.
 Do not reuse an analysis subagent for implementation.
 
 ## Condensed Output Contract
@@ -98,9 +98,11 @@ For recommendation-report mode:
 - analysis produces the final item-level `action`, `issue`, and `response` fields
 - the parent agent aggregates those results into the final user-facing report
 
-For reply-draft mode after the user finalizes which items do not need implementation:
+For requested reply preparation:
 
-- generate reply drafts only for items the user has finalized as skipped or otherwise not requiring implementation
+- generate final reply drafts for items the user has finalized as skipped or otherwise not requiring implementation
+- when the user requests triage plus reply preparation, provisional drafts for proposed skipped or non-implementation items may accompany triage without a separate request for provisional wording; label them provisional and identify unresolved assumptions
+- triage-only requests do not authorize reply drafting
 - do not post reply drafts to GitHub during draft generation
 - if the user later explicitly asks to post a specific draft, treat posting as a separate follow-up action
 - group reply drafts by GitHub URL, not by triage item
@@ -116,11 +118,11 @@ The visible report format, action labels, file-link rules, nitpick rule, and rep
 - Default to the narrowest possible review surface.
 - The parent agent must not fetch the review surface, read comment bodies, classify actionability, cluster items, perform cluster-level detailed analysis, draft recommendation entries, or inspect repository code before the relevant subagent returns.
 - Always start with exactly one intake subagent, even for a single comment URL.
-- Final recommendation labels belong to analysis subagents, not intake.
+- Final recommendation labels belong to the analysis phase, including when the intake subagent continues into analysis of one bounded concern.
 - Do not treat the full PR as required context when the user gave one review or one discussion URL.
 - Do not quote large review bodies back into the main thread.
 - Do not run lint, tests, or builds during pure intake or triage.
 - Do not let the orchestrator accumulate raw review data.
 - Do not use low-capability fast-path subagents for intake or analysis.
-- Do not create reply drafts before the user has finalized which triage items do not need implementation, unless the user explicitly asks for provisional drafts.
+- Before skip decisions are finalized, create only clearly marked provisional drafts when the user requests triage plus reply preparation or explicitly asks for provisional drafts. Identify unresolved assumptions; do not treat draft preparation as implementation or posting authorization.
 - If the parent agent is blocked on intake or analysis results, wait rather than duplicating the same work locally.
