@@ -16,7 +16,13 @@
 
 ## Delegation
 
-- Follow applicable skill guidance; explicit user instructions take precedence over skill guidelines, subject to higher-priority instructions. Otherwise, use subagents freely for well-scoped tasks.
+- Follow applicable skill guidance; explicit user instructions take precedence over skill guidelines, subject to higher-priority instructions. Preserve explicit delegation requirements, including the codebase-explorer skill's exploration criteria; the cost guidance below does not relax them.
+- Otherwise, delegate well-scoped work when it can reduce total cost or elapsed time without materially reducing quality. Include startup, context transfer, execution, verification, and rework in that judgment. Handle a single small task directly when delegation overhead outweighs its benefit; assess related small tasks together, batch them when useful, and reuse suitable existing agents.
+- Prefer the least expensive model and reasoning effort expected to meet the task's quality requirements. Use Luna for suitable delegated work, raising its reasoning effort as needed rather than routinely selecting Terra. Do not fix Luna to one effort level or assume extra reasoning eliminates capability gaps.
+- Select Sol or Astra upfront when complexity, ambiguity, the impact of errors, or difficulty verifying results makes Luna unsuitable. Use Terra only when there is a concrete reason to expect a better quality, total-cost, or latency trade-off than Luna with appropriate reasoning. Do not require trying each model in sequence.
+- Luna, Terra, Sol, and Astra denote model families. Resolve them to exact model IDs from the current environment's available models when spawning agents; do not guess IDs. If a family is unavailable, choose an available model that meets the same quality and cost criteria.
+- Respect explicit model and reasoning settings in specialized agent definitions. For other agents, select the model and effort explicitly instead of unintentionally inheriting an expensive orchestrator configuration. If capability limits become evident, pass the useful findings to a stronger model rather than repeatedly retrying with the same model.
+- Give each agent a clear scope, completion criteria, and required evidence. Keep orchestration focused on decisions, integration, and verification proportionate to risk; avoid redoing delegated work. Continue useful independent work while agents run. Delegation can also save cost on substantial sequential work; parallelism is not required.
 - Never duplicate a delegated task or interrupt a running subagent merely because it is slow. Wait when the next step depends on its result.
 - Write subagent instructions in English, require English reports, provide task-specific context explicitly, and disable automatic parent-context inheritance.
 
