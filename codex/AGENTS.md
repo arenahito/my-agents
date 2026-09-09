@@ -37,7 +37,9 @@
 
 ## Code and Review
 
-- After implementation or documentation changes that affect behavior, interfaces, or workflow rules, use `reviewer` for code and documents and `visual_reviewer` for visual appearance artifacts. Provide the target files, intended outcome, and scope. Validate findings against evidence and task requirements; fix substantiated issues within scope and explain rejected findings.
+- Use independent review when explicitly requested by the user or when the potential impact of defects, complexity, or uncertainty makes it valuable. Small, localized changes that are easy to verify may be completed with the implementing agent's own inspection and appropriate checks, unless independent review is explicitly required by applicable instructions.
+- Batch related changes into one review at a coherent completion point. Re-review only when substantial revisions or unresolved concerns warrant another independent assessment; minor fixes do not automatically require another review.
+- When independent review is needed, use `reviewer` for code and documents and `visual_reviewer` for visual appearance artifacts. Provide the target files, intended outcome, and scope. Validate findings against evidence and task requirements; fix substantiated issues within scope and explain rejected findings.
 - During code review, do not routinely rerun linting, formatting, type-checking, or tests. Focus on design, logic, readability, and correctness; use a targeted reproduction only when needed to resolve a concrete suspected defect.
 - For implementation, run checks appropriate to the change and complete required checks. After they pass, broaden or repeat verification only for new changes, failures, or unresolved concerns.
 - Add tests when they detect plausible regressions; avoid tests that merely restate the changed implementation, configuration, or metadata.
