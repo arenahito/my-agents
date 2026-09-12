@@ -26,7 +26,6 @@ guardian_approval = true
 image_generation = true
 chronicle = false
 goals = true
-context_management = { experimental_mode = true }
 
 [sandbox_workspace_write]
 writable_roots = []
