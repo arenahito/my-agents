@@ -11,5 +11,5 @@ Rules:
 - If no actionable issues remain, state that result and finish; do not invent findings to fill the report.
 """
 
-model = "gpt-6-astra"
-model_reasoning_effort = "medium"
+model = "gpt-6-sol"
+model_reasoning_effort = "high"
