@@ -1,6 +1,7 @@
 {
   "id": "chisa-pon",
   "displayName": "chisa-pon",
-  "description": "A tiny chibi bear-suit companion with red eyes, black bob hair, and a cream bow.",
+  "description": "ナミポン着ぐるみを着た千咲（鳴潮）",
+  "spriteVersionNumber": 2,
   "spritesheetPath": "spritesheet.webp"
 }
