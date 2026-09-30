@@ -21,7 +21,7 @@
 - Use the model and reasoning effort explicitly requested by the user. For settings the user does not specify, use explicit settings in the specialized agent definition. Apply the defaults below only to settings that neither specifies.
 - Use Sol as the default model for non-visual delegated work, including coding, research, and analysis.
 - Use Luna for routine tasks with an established procedure, or tasks where the requested changes and expected result are specified. Use Sol when the agent must resolve missing requirements or choose among substantive approaches. Decide whether to delegate related work together or separately based on the task and handoff cost.
-- Use Astra for graphic design and the visual aspects of UI/UX, including layout, typography, color, and visual styling.
+- Do not use Luna for graphic design or visual design decisions, including layout, typography, color, and visual styling. Choose Sol or Astra based on the task's complexity and quality requirements.
 - Choose the least reasoning effort expected to meet the task's quality requirements. Do not increase Luna's reasoning effort solely to avoid using Sol.
 - Luna, Sol, and Astra denote model families. Resolve them to exact model IDs from the current environment's available models when spawning agents; do not guess IDs. If a family is unavailable, choose an available model that meets the same quality requirements.
 - Select the model and reasoning effort explicitly instead of unintentionally inheriting the orchestrator's settings. If a selected model proves unsuitable, pass the useful findings to an appropriate model rather than repeatedly retrying.
