@@ -9,7 +9,7 @@ file_opener = "vscode"
 suppress_unstable_features_warning = true
 web_search = "live"
 personality = "friendly"
-approvals_reviewer = "user"
+approvals_reviewer = "auto_review"
 # model_context_window = 400000
 
 [features]
@@ -44,7 +44,7 @@ max_threads = 12
 # max_depth = 3
 
 [windows]
-sandbox = "elevated"
+sandbox = "mxc"
 
 [memories]
 generate_memories = true
@@ -115,6 +115,15 @@ enabled = true
 enabled = true
 
 [plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."codex-app-tools@openai-bundled"]
+enabled = true
+
+[plugins."unified-computer-use@openai-bundled"]
+enabled = true
+
+[plugins."code-review@openai-bundled"]
 enabled = true
 
 [apps.connector_68df33b1a2d081918778431a9cfca8ba]
