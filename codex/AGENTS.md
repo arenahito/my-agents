@@ -16,18 +16,21 @@
 
 ## Delegation
 
-- Follow applicable skill guidance; explicit user instructions take precedence over skill guidelines, subject to higher-priority instructions. Apply the delegation criteria below when following skill guidance.
-- Delegate well-scoped work when it can meet the required quality and its handoff, coordination, and verification costs are justified. Handle small tasks directly when delegation adds more overhead than value.
-- Use the model and reasoning effort explicitly requested by the user. For settings the user does not specify, use explicit settings in the specialized agent definition. Apply the defaults below only to settings that neither specifies.
-- Use Sol as the default model for non-visual delegated work, including coding, research, and analysis.
-- Use Luna for routine tasks with an established procedure, or tasks where the requested changes and expected result are specified. Use Sol when the agent must resolve missing requirements or choose among substantive approaches. Decide whether to delegate related work together or separately based on the task and handoff cost.
-- Do not use Luna for graphic design or visual design decisions, including layout, typography, color, and visual styling. Choose Sol or Astra based on the task's complexity and quality requirements.
-- Choose the least reasoning effort expected to meet the task's quality requirements. Do not increase Luna's reasoning effort solely to avoid using Sol.
-- Luna, Sol, and Astra denote model families. Resolve them to exact model IDs from the current environment's available models when spawning agents; do not guess IDs. If a family is unavailable, choose an available model that meets the same quality requirements.
-- Select the model and reasoning effort explicitly instead of unintentionally inheriting the orchestrator's settings. If a selected model proves unsuitable, pass the useful findings to an appropriate model rather than repeatedly retrying.
-- Give each agent a clear scope, completion criteria, and required evidence. Keep orchestration focused on decisions, integration, and verification proportionate to risk; avoid redoing delegated work. Continue useful independent work while agents run.
-- Never duplicate a delegated task or interrupt a running subagent merely because it is slow. Wait when the next step depends on its result.
-- Write subagent instructions in English, require English reports, provide task-specific context explicitly, and disable automatic parent-context inheritance.
+- Unless explicitly instructed otherwise, delegate only when doing so
+  preserves the required quality and reduces cost through a cheaper model,
+  saves time through parallel work, or provides capabilities beyond the
+  current model. Account for handoff, coordination, and verification costs.
+- Select model and reasoning effort explicitly: user requests take
+  precedence, followed by specialized agent settings. Otherwise, use Luna
+  for simple tasks and Sol for other work, with the least reasoning effort
+  needed to meet the required quality.
+- Give each agent a clear scope, completion criteria, required evidence,
+  and necessary context. Use English instructions and reports, and disable
+  automatic parent-context inheritance.
+- Focus the parent on decisions, integration, and proportionate verification.
+  Avoid redoing delegated work; continue independent work while agents run.
+- Do not duplicate assignments or interrupt agents merely because they are
+  slow. Wait when the next step depends on their results.
 
 ## Commands and Tools
 
@@ -42,7 +45,7 @@
 
 - Use independent review when explicitly requested by the user or when the potential impact of defects, complexity, or uncertainty makes it valuable. Small, localized changes that are easy to verify may be completed with the implementing agent's own inspection and appropriate checks, unless independent review is explicitly required by applicable instructions.
 - Batch related changes into one review at a coherent completion point. Re-review only when substantial revisions or unresolved concerns warrant another independent assessment; minor fixes do not automatically require another review.
-- When independent review is needed, use `reviewer` for code and documents and `visual_reviewer` for visual appearance artifacts. Provide the target files, intended outcome, and scope. Validate findings against evidence and task requirements; fix substantiated issues within scope and explain rejected findings.
+- When independent review is needed, provide the target files, intended outcome, and scope. Validate findings against evidence and task requirements; fix substantiated issues within scope and explain rejected findings.
 - During code review, do not routinely rerun linting, formatting, type-checking, or tests. Focus on design, logic, readability, and correctness; use a targeted reproduction only when needed to resolve a concrete suspected defect.
 - For implementation, run checks appropriate to the change and complete required checks. After they pass, broaden or repeat verification only for new changes, failures, or unresolved concerns.
 - Add tests when they detect plausible regressions; avoid tests that merely restate the changed implementation, configuration, or metadata.
