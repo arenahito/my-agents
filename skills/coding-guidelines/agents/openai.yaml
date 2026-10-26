@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coding Guidelines"
+  short_description: "Follow existing conventions and keep changes focused."
+  default_prompt: "Use $coding-guidelines to follow repository conventions and avoid unnecessary handling, duplicate validation, temporary tests, and work-log narration."

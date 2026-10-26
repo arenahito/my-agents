@@ -42,4 +42,4 @@ Task-specific instruction sets used by the Codex skills feature.
 | codebase-explorer | Fast codebase exploration through orchestrated subagents |
 | github-review-triage | Triage and follow-up workflow for GitHub pull request review URLs |
 | review-loop | Iterative subagent review, fix, same-reviewer recheck, and fresh independent review passes |
-| readability-rules | Skill for defining and applying rule priorities in coding guidance |
+| coding-guidelines | Repository conventions and focused implementation, validation, testing, and documentation guidelines |

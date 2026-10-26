@@ -1,5 +1,8 @@
 # Preference Rules
 
+Apply these preferences only where explicit instructions, repository rules,
+existing code, and applicable language conventions leave formatting unspecified.
+
 ## 1. Line Length
 
 - Try to keep each line at or below 80 characters.
