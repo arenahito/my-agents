@@ -21,9 +21,11 @@
   saves time through parallel work, or provides capabilities beyond the
   current model. Account for handoff, coordination, and verification costs.
 - Select model and reasoning effort explicitly: user requests take
-  precedence, followed by specialized agent settings. Otherwise, use Luna
-  for simple tasks and Sol for other work, with the least reasoning effort
-  needed to meet the required quality.
+  precedence, followed by specialized agent settings. Otherwise, prioritize
+  cost among models that meet the required capabilities and quality. Choose
+  a faster model when the cost savings would substantially increase
+  completion time. Select reasoning effort according to task difficulty
+  and required quality.
 - Give each agent a clear scope, completion criteria, required evidence,
   and necessary context. Use English instructions and reports, and disable
   automatic parent-context inheritance.
