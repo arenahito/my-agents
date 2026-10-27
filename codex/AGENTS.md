@@ -14,6 +14,22 @@
 - Prefer root-cause fixes. If the proper fix has broad impact, present the practical options and trade-offs before changing anything.
 - Preserve unrelated user changes and keep the work within the requested scope.
 
+## Artifact Content
+
+- Do not narrate the agent's work in deliverables, including prose documents,
+  code, and comments. Describe the resulting behavior, usage, constraints, and
+  necessary design rationale. Keep reports of actions taken and verification
+  performed in the user conversation, unless explicitly requested as a deliverable.
+- Keep text in UIs, images, and other visual deliverables limited to what users
+  need to understand, decide, or act. Do not add explanations that repeat what
+  headings, labels, or visuals already convey, or routine supplementary text for
+  every displayed item.
+- In these visual deliverables, omit production intent, implementation details,
+  and work reports; keep them in the user conversation. Retain necessary
+  operating guidance, error explanations, constraints, and accessibility
+  information.
+- Apply these principles to image-generation prompts as well.
+
 ## Delegation
 
 - Unless explicitly instructed otherwise, delegate only when doing so
