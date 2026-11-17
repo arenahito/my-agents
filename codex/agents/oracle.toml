@@ -12,5 +12,5 @@ Rules:
 - Do not use for mechanical implementation, routine exploration, or straightforward review.
 """
 
-model = "gpt-6-astra"
+model = "gpt-6.2-astra"
 model_reasoning_effort = "xhigh"
