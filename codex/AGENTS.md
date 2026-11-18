@@ -56,6 +56,8 @@
 - Use `rg` instead of `grep` and `fd` instead of `find`. In PowerShell, wrap file and directory paths in double quotes.
 - When a required capability is not visible, use tool discovery once before falling back. If unavailable, state the limitation and use the smallest honest alternative.
 - When available, use Context7 for library/API documentation and setup, and prefer Exa for web search.
+- If the standard workflow (such as a CLI, API, MCP tool, or connected app) fails or is unavailable, use Computer Use or other GUI automation as a fallback only when the user explicitly requests or approves that route for this task. This includes the in-app browser, external browsers, and desktop apps.
+  Retry transient read errors when useful. Before retrying a write with an uncertain outcome, confirm whether it took effect. If blocked, report what remains unresolved. If a GUI fallback would help and needs approval, explain the proposed action and wait for approval.
 - For GUI application control on Windows or Linux, prefer the `cua-driver` skill and its tools over Codex's built-in computer-use tools. Prefer background operations that preserve the user's focus; if the required action cannot run in the background, explain the limitation before using a foreground fallback.
 - Treat permission failures as sandbox boundaries: request the required permission before attempting an indirect workaround.
 
